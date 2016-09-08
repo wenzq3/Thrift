@@ -52,11 +52,11 @@ namespace Thrift.Client
             {
                 if (disposing)
                 {
-                    //if (_client != null)
-                    //{
-                    //    _clientPool.Push(_client);
-                    //    _client = null;
-                    //}
+                    if (_client != null)
+                    {
+                        _clientPool.Push(_client);
+                        _client = null;
+                    }
                 }
                 disposed = true;
             }
