@@ -39,10 +39,5 @@ namespace Thrift.Client
                 return _dit[serviceName].Pop();
             }
         }
-
-        static public void CloseAll(string serviceName)
-        {
-            _dit[serviceName].CloseAll();
-        }
     }
 }

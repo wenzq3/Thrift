@@ -11,11 +11,21 @@ namespace Thrift.Client
     {
         private Tuple<TTransport, T> _client;
         private ThriftClientPool<T> _clientPool;
+        private string _host;
 
-        public ThriftClient(Tuple<TTransport, T> client, ThriftClientPool<T> clientPool)
+        public ThriftClient(Tuple<TTransport, T> client, ThriftClientPool<T> clientPool,string host)
         {
             _client = client;
             _clientPool = clientPool;
+            _host = host;
+        }
+
+        /// <summary>
+        /// 当前连接的主机
+        /// </summary>
+        public string Host
+        {
+            get { return _host; }
         }
 
         public T Client
@@ -54,7 +64,7 @@ namespace Thrift.Client
                 {
                     if (_client != null)
                     {
-                        _clientPool.Push(_client);
+                        _clientPool.Push(_client,_host);
                         _client = null;
                     }
                 }

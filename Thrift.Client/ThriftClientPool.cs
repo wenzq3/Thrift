@@ -14,7 +14,7 @@ namespace Thrift.Client
 {
     public class ThriftClientPool<T> where T : class
     {
-        private ConcurrentStack<Lazy<ThriftClient<T>>> _clients = new ConcurrentStack<Lazy<ThriftClient<T>>>();
+        private ConcurrentQueue<Lazy<ThriftClient<T>>> _clients = new ConcurrentQueue<Lazy<ThriftClient<T>>>();
 
         ThriftClientConfig _config;
         private int _count = 0;//已创建的连接数量
@@ -23,7 +23,7 @@ namespace Thrift.Client
 
         public ThriftClientPool(string sectionName, string serviceName)
         {
-            _config = new ThriftClientConfig(sectionName, serviceName);
+            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool);
 
             if (_config == null)
                 throw new Exception($"{sectionName} 结点 {serviceName} 不存在");
@@ -35,6 +35,26 @@ namespace Thrift.Client
             CreateConnections(_config.Config.MinConnectionsNum);
         }
 
+        /// <summary>
+        /// 更新连接池，删除不可用的连接
+        /// </summary>
+        public void UpdatePool()
+        {
+            int count = _clients.Count;
+            for (int i = 0; i < count; i++)
+            {
+                Lazy<ThriftClient<T>> client = null;
+                if (!_clients.TryDequeue(out client))
+                    break;
+
+                if (!_config.Config.Host.Contains(client.Value.Host))
+                {
+                    client.Value.Destroy(); //删除不可用的连接
+                }
+                else
+                    client.Value.Dispose();
+            }
+        }
 
         /// <summary>
         /// 创建连接
@@ -52,12 +72,12 @@ namespace Thrift.Client
                     Lazy<ThriftClient<T>> client = new Lazy<ThriftClient<T>>(() =>
                     {
                         var item = ThriftClientFactory.Create(_config.Config);
-                        return new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this);
+                        return new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3);
                     });
 
-                    _clients.Push(client);
+                    _clients.Enqueue(client);
                     _count++;
-             ThriftLog.Info("创建连接池：" + _count);
+                    ThriftLog.Info("创建连接池：" + _count);
                 }
             }
         }
@@ -87,9 +107,31 @@ namespace Thrift.Client
             }
         }
 
-        public void Push(Tuple<TTransport, T> client)
+        /// <summary>
+        /// 回收一个连接
+        /// </summary>
+        /// <param name="client"></param>
+        public void Push(Tuple<TTransport, T> client, string host)
         {
-            _clients.Push(new Lazy<ThriftClient<T>>(() => new ThriftClient<T>(client, this)));
+            //超过最大空闲
+            if (_clients.Count() >= _config.Config.MaxConnectionsIdle)
+            {
+                try
+                {
+                    client.Item1.Close();
+                    client = null;
+                }
+                catch (Exception ex)
+                {
+                    ThriftLog.Error(ex.Message + ex.StackTrace);
+                }
+                finally
+                {
+                    Destroy();
+                }
+            }
+            else
+                _clients.Enqueue(new Lazy<ThriftClient<T>>(() => new ThriftClient<T>(client, this, host)));
         }
 
         public void Destroy()
@@ -97,15 +139,6 @@ namespace Thrift.Client
             _count--;
         }
 
-        public void CloseAll()
-        {
-            Lazy<ThriftClient<T>> client = null;
-            while (_clients.TryPop(out client))
-            {
-                client.Value.Destroy();
-            }
-            _count = 0;
-        }
         /// <summary>
         /// 返回连接或创建
         /// </summary>
@@ -113,7 +146,7 @@ namespace Thrift.Client
         private ThriftClient<T> GetOrCreateConnection(bool create)
         {
             Lazy<ThriftClient<T>> client = null;
-            if (_clients.TryPop(out client))
+            if (_clients.TryDequeue(out client))
             {
                 return client.Value;
             }

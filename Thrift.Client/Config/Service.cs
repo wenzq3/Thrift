@@ -54,6 +54,16 @@ namespace Thrift.Client.Config
         }
 
         /// <summary>
+        /// 最大空闲连接数
+        /// </summary>
+        [ConfigurationProperty("maxConnectionsIdle", IsRequired = false, DefaultValue = 50)]
+        public int MaxConnectionsIdle
+        {
+            get { return (int)this["maxConnectionsIdle"]; }
+        }
+        
+
+        /// <summary>
         /// 返回超时值，毫秒单位
         /// </summary>
         [ConfigurationProperty("timeout", IsRequired = false, DefaultValue = 10000)]

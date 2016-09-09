@@ -20,7 +20,7 @@ namespace Thrift.Client
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        static public Tuple<TTransport, object> Create(Config.Service config)
+        static public Tuple<TTransport, object, string> Create(Config.Service config)
         {
             string[] url = config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             string host = url[0];
@@ -30,14 +30,13 @@ namespace Thrift.Client
                 int num = new Random().Next(0, url.Length);
                 host = url[num];
             }
-            ThriftLog.Info(host);
-
+            Console.WriteLine(config.Host+"--"+ host);
             TTransport transport = new TSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout);
             TProtocol protocol = new TBinaryProtocol(transport);
 
             return Tuple.Create(transport, Type.GetType(config.TypeName, true)
            .GetConstructor(new Type[] { typeof(TProtocol) })
-            .Invoke(new object[] { protocol }));
+            .Invoke(new object[] { protocol }), host);
         }
     }
 }

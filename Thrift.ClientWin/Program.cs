@@ -17,27 +17,87 @@ namespace Thrift.ClientWin
     {
         static void Main(string[] args)
         {
-
             while (true)
             {
                 try
                 {
-
-
                     using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
                     {
-
-                        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
-                        Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject( svc.Client.GetALL()));
+                        //Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
+                        //Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
+                        Console.WriteLine("true");
                     }
-
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-                System.Threading.Thread.Sleep(2000);
+                System.Threading.Thread.Sleep(5000);
             }
+
+            int het = 500;
+
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Start();
+
+            //var countdown = new CountdownEvent(het);
+            //ThreadPool.SetMinThreads(1000, 1000);
+            //ThreadPool.SetMaxThreads(1000, 1000);
+
+            //for (int i = 0; i < het; i++)
+            //{
+
+            //    ThreadPool.QueueUserWorkItem((obj) =>
+            //    {
+            //        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+            //        {
+            //      svc.Client.Get(1);
+            //        svc.Client.GetALL();
+            //        }
+            //        countdown.Signal();
+            //    });
+
+            //}
+
+
+            //while (!countdown.IsSet) ;
+
+            //stopwatch.Stop();
+
+            //Console.WriteLine(stopwatch.ElapsedMilliseconds);
+            //Console.WriteLine("over");
+
+
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var threads = new List<Thread>();
+            var countdown = new CountdownEvent(het);
+            for (int i = 0; i < het; i++)
+            {
+                threads.Add(new Thread(() =>
+                {
+                    using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+                    {
+                        svc.Client.Get(1);
+                        svc.Client.GetALL();
+                    }
+                    countdown.Signal();
+                }));
+            }
+
+            for (int i = 0; i < het; i++)
+            {
+                threads[i].Start();
+            }
+
+            while (!countdown.IsSet) ;
+            stopwatch.Stop();
+
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("over");
+
 
             Console.ReadLine();
         }

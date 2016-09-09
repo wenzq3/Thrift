@@ -10,18 +10,21 @@ using ZooKeeperNet;
 
 namespace Thrift.Client
 {
-    public class ThriftClientConfig : IWatcher
+    public class ThriftClientConfig 
     {
         private Config.Service _config;
         private string _sectionName, _serviceName;
         private string _configPath;
 
-        public ThriftClientConfig(string sectionName, string serviceName)
+        private Action  _updateHostDelegate=null; //服务主机更改通知
+
+        public ThriftClientConfig(string sectionName, string serviceName, Action updateHostDelegate)
         {
             _configPath = ConfigurationManager.AppSettings["ThriftClientConfigPath"];
             _sectionName = sectionName;
             _serviceName = serviceName;
             _config = GetConfig(true);
+            _updateHostDelegate = updateHostDelegate;
         }
 
         /// <summary>
@@ -123,20 +126,13 @@ namespace Thrift.Client
                     isRegister = ZookeeperWatcherHelp.Register(zk, znode, null, (@event, nodeData) =>
                      {
                              _config = GetConfig(false);
+                         if (_updateHostDelegate != null)
+                             _updateHostDelegate();
                      });
 
                     System.Threading.Thread.Sleep(10000);
                 }
             }).Start();
-        }
-
-        public void Process(WatchedEvent @event)
-        {
-            //服务节点删除了，需要重新获取服务地址
-            if (@event.Type == EventType.NodeDeleted)
-            {
-                _config = GetConfig(false);
-            }
         }
     }
 }
