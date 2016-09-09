@@ -1,0 +1,15 @@
+Thrift.ServiceWin/obj/
+Thrift.Test/obj/
+packages/
+Thrift.Service/obj/
+Thrift.Service/bin/
+Thrift.Server/obj/
+Thrift.Server/bin/
+Thrift.ServiceWin/bin/
+Thrift.ClientWin/bin/
+Thrift.IDLHelp/bin/
+Thrift.IDLHelp/obj/
+Thrift.ClientWin/obj/
+Thrift.Client/obj/
+Thrift.Client/bin/
+Thrift.Test/bin/
