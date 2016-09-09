@@ -21,7 +21,7 @@ namespace Thrift.Server
             }
             catch (Exception ex)
             {
-                ThriftLog.Error(ex.StackTrace);
+                ThriftLog.Error(ex.Message + ex.StackTrace);
                 return false;
             }
         }
@@ -88,7 +88,7 @@ namespace Thrift.Server
                 catch (KeeperException.NoNodeException ex)
                 {
                     _zk.Exists(@event.Path, this);
-                    ThriftLog.Error(ex.StackTrace);
+                    ThriftLog.Error(ex.Message + ex.StackTrace);
                 }
             }
         }

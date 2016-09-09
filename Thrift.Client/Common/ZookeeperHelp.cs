@@ -83,7 +83,7 @@ namespace Thrift.Client
             }
             catch (Exception ex)
             {
-             ThriftLog.Error(ex.StackTrace);
+                ThriftLog.Error(ex.Message + ex.StackTrace);
                 return null;
             }
         }
@@ -100,7 +100,7 @@ namespace Thrift.Client
             }
             catch (Exception ex)
             {
-                ThriftLog.Error(ex.StackTrace);
+                ThriftLog.Error(ex.Message + ex.StackTrace);
                 return null;
             }
         }

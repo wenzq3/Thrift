@@ -84,8 +84,7 @@ namespace Thrift.Server
                 }
                 catch (Exception ex)
                 {
-                    //       LogHelper.Info(ex.Message);
-                    //throw new Exception("zk:"+ ex.Message);
+                    ThriftLog.Error(ex.Message+ex.StackTrace);
                 }
             }
         }
