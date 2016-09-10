@@ -13,7 +13,7 @@ namespace Thrift.Client
         private ThriftClientPool<T> _clientPool;
         private string _host;
 
-        public ThriftClient(Tuple<TTransport, T> client, ThriftClientPool<T> clientPool,string host)
+        public ThriftClient(Tuple<TTransport, T> client, ThriftClientPool<T> clientPool, string host)
         {
             _client = client;
             _clientPool = clientPool;
@@ -44,7 +44,7 @@ namespace Thrift.Client
                 catch (Exception ex)
                 {
                     ThriftLog.Info("destory:" + ex.Message);
-                    this.Destroy();
+                    Destroy();
                     return null;
                 }
             }
@@ -64,7 +64,7 @@ namespace Thrift.Client
                 {
                     if (_client != null)
                     {
-                        _clientPool.Push(_client,_host);
+                        _clientPool.Push(_client, _host);
                         _client = null;
                     }
                 }
@@ -86,6 +86,7 @@ namespace Thrift.Client
             {
                 _client = null;
                 _clientPool.Destroy();
+                System.GC.Collect();
             }
         }
     }

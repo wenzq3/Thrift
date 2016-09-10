@@ -20,9 +20,12 @@ namespace Thrift.Client
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        static public Tuple<TTransport, object, string> Create(Config.Service config)
+        static public Tuple<TTransport, object, string> Create(Config.Service config,List<string > errorHost=null)
         {
-            string[] url = config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[]url= config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (url.Length == 0) return null;
+
             string host = url[0];
 
             if (url.Length > 1)

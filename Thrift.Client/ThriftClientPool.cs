@@ -16,7 +16,7 @@ namespace Thrift.Client
     {
         private ConcurrentQueue<Lazy<ThriftClient<T>>> _clients = new ConcurrentQueue<Lazy<ThriftClient<T>>>();
 
-        ThriftClientConfig _config;
+        private ThriftClientConfig _config;
         private int _count = 0;//已创建的连接数量
         private object lockHelper = new object();
 
@@ -40,7 +40,7 @@ namespace Thrift.Client
         /// </summary>
         public void UpdatePool()
         {
-            int count = _clients.Count;
+            int count = _count;
             for (int i = 0; i < count; i++)
             {
                 Lazy<ThriftClient<T>> client = null;
