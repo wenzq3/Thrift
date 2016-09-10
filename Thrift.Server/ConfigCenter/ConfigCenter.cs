@@ -17,6 +17,8 @@ namespace Thrift.Server
         private static int _zk_sessionTimeout = int.Parse(ConfigurationManager.AppSettings["ZookeeperSessionTimeout"]);
         private static string _zk_digest = ConfigurationManager.AppSettings["ZookeeperDigest"];
 
+        private static RegeditConfig _regeditConfig = null;
+
         //private static ZooKeeper _zk = ZookeeperHelp.CreateClient(_zk_host, _sessionTimeout, null, _zk_digest);
         //private static List<ACL> _zk_Acl = ZookeeperHelp.GetACL(_zk_digest);
 
@@ -35,7 +37,16 @@ namespace Thrift.Server
         /// <param name="service"></param>
         public static void RegeditServer(Service service)
         {
-            new RegeditConfig(_zk_host, _zk_sessionTimeout, _zk_digest, service).Init();
+            _regeditConfig = new RegeditConfig(_zk_host, _zk_sessionTimeout, _zk_digest, service);
+            _regeditConfig.Init();
+        }
+
+        public static void LogoutServer()
+        {
+            if (_regeditConfig == null)
+                return;
+
+            _regeditConfig.Logout();
         }
     }
 }

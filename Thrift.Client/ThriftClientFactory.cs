@@ -20,20 +20,31 @@ namespace Thrift.Client
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        static public Tuple<TTransport, object, string> Create(Config.Service config,List<string > errorHost=null)
+        static public Tuple<TTransport, object, string> Create(Config.Service config, List<string> errorHost = null)
         {
-            string[]url= config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] url = config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (url.Length == 0) return null;
 
-            string host = url[0];
-
-            if (url.Length > 1)
+            List<string> listUri = new List<string>();
+            foreach (string item in url)
             {
-                int num = new Random().Next(0, url.Length);
-                host = url[num];
+                var uri = item.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                var length = uri.Length > 1 ? int.Parse(uri[1]) : 1;
+                int i = 0;
+                while (i++ < Math.Min(1, length))
+                {
+                    listUri.Add(uri[0]);
+                }
             }
-            Console.WriteLine(config.Host+"--"+ host);
+
+            if (listUri.Count == 0)
+                return null;
+
+            int num = new Random().Next(0, listUri.Count);
+            string host = listUri[num];
+
+         //   Console.WriteLine(config.Host + "--" + host);
             TTransport transport = new TSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout);
             TProtocol protocol = new TBinaryProtocol(transport);
 

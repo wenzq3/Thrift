@@ -63,10 +63,12 @@
     <Compile Include="Common\ZookeeperWatcherHelp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThriftClient.cs" />
+    <Compile Include="ThriftClient_Simple.cs" />
     <Compile Include="ThriftClientConfig.cs" />
     <Compile Include="ThriftClientFactory.cs" />
     <Compile Include="ThriftClientManager.cs" />
     <Compile Include="ThriftClientPool.cs" />
+    <Compile Include="ThriftClientPool_Simple.cs" />
     <Compile Include="ThriftLog.cs" />
   </ItemGroup>
   <ItemGroup>

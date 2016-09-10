@@ -100,7 +100,7 @@ namespace Thrift.Server.Config
         /// <summary>
         /// 服务器权重
         /// </summary>
-        [ConfigurationProperty("weight", IsRequired = false, DefaultValue = 0)]
+        [ConfigurationProperty("weight", IsRequired = false, DefaultValue = 1)]
         public int Weight
         {
             get { return (int)this["weight"]; }

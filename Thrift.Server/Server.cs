@@ -16,6 +16,7 @@ namespace Thrift.Server
     public class Server
     {
         private static List<TServer> _services;
+        private const int _delayedTime = 20000;//延时关闭服务时间
 
         public static void Start()
         {
@@ -61,10 +62,10 @@ namespace Thrift.Server
 
                             });
 
-                        if(!string.IsNullOrEmpty( service.ZnodeParent))
+                        if (!string.IsNullOrEmpty(service.ZnodeParent))
                             ConfigCenter.RegeditServer(service); //zookeeper 注册服务
 
-                          ThriftLog.Info($"{service.Name} {service.Port} Starting the TThreadPoolServer...");
+                        ThriftLog.Info($"{service.Name} {service.Port} Starting the TThreadPoolServer...");
                         _services.Add(server);
                         server.Serve();
                     }
@@ -79,6 +80,10 @@ namespace Thrift.Server
 
         public static void Stop()
         {
+            ConfigCenter.LogoutServer(); //先注销zookeeper
+
+            System.Threading.Thread.Sleep(_delayedTime); //延时关闭
+
             foreach (TServer server in _services)
             {
                 if (server != null)

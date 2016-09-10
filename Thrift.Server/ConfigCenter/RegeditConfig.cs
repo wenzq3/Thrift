@@ -21,6 +21,7 @@ namespace Thrift.Server
         private string _host;
         private string _digest;
         private int _sessionTimeout;
+        private bool _isLogout;
 
 
         public RegeditConfig(string host, int sessionTimeout, string digest, Service service)
@@ -32,6 +33,7 @@ namespace Thrift.Server
             _zk_Acl = ZookeeperHelp.GetACL(_digest);
 
             _service = service;
+            _isLogout = false;
         }
 
         public ZooKeeper GetZk()
@@ -50,13 +52,20 @@ namespace Thrift.Server
                 if (_host == "")
                     throw new Exception("当前服务IP地址不能为空");
             }
-            var zNode = $"{_service.ZnodeParent}/{_host}:{_service.Port}:{_service.Weight}";
+            var zNode = $"{_service.ZnodeParent}/{_host}:{_service.Port}-{_service.Weight}";
 
             new System.Threading.Thread(() =>
             {
                 CheckNodeParent();
                 Regedit(zNode);
             }).Start();
+        }
+
+        public void Logout()
+        {
+            _isLogout = true;
+            if (_zk != null)
+                _zk.Dispose();
         }
 
         /// <summary>
@@ -84,7 +93,7 @@ namespace Thrift.Server
                 }
                 catch (Exception ex)
                 {
-                    ThriftLog.Error(ex.Message+ex.StackTrace);
+                    ThriftLog.Error(ex.Message + ex.StackTrace);
                 }
             }
         }
@@ -102,6 +111,8 @@ namespace Thrift.Server
             bool isRegister = false;
             while (!isRegister)
             {
+                if (_isLogout) break;
+
                 try
                 {
                     GetZk().Create(zNode, null, _zk_Acl, CreateMode.Ephemeral);

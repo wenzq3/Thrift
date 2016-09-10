@@ -17,26 +17,26 @@ namespace Thrift.ClientWin
     {
         static void Main(string[] args)
         {
-            while (true)
-            {
-                try
-                {
-                    using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
-                    {
-                        svc.Client.Get(1);
-                     //   Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
-                        //Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
-                        Console.WriteLine("true");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("false"+ex.Message);
-                }
-                System.Threading.Thread.Sleep(5000);
-            }
+            //while (true)
+            //{
+            //    try
+            //    {
+            //        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+            //        {
+            //            svc.Client.Get(1);
+            //            //   Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
+            //            //Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
+            //            Console.WriteLine("true");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine("false" + ex.Message);
+            //    }
+            //    System.Threading.Thread.Sleep(500);
+            //}
 
-            int het = 500;
+            int het = 1000;
 
             //var stopwatch = new Stopwatch();
             //stopwatch.Start();
@@ -50,12 +50,23 @@ namespace Thrift.ClientWin
 
             //    ThreadPool.QueueUserWorkItem((obj) =>
             //    {
-            //        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
-            //        {
-            //      svc.Client.Get(1);
+
+            //try
+            //{
+            //    System.Threading.Thread.Sleep(10);
+            //    using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+            //    {
+            //        svc.Client.Get(1);
             //        svc.Client.GetALL();
-            //        }
-            //        countdown.Signal();
+            //        //        Console.WriteLine("true");
+            //    }
+            //}
+            //catch { Console.WriteLine("false"); }
+            //finally
+            //{
+            //    countdown.Signal();
+            //}
+
             //    });
 
             //}
@@ -79,12 +90,24 @@ namespace Thrift.ClientWin
             {
                 threads.Add(new Thread(() =>
                 {
-                    using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+                    try
                     {
-                        svc.Client.Get(1);
-                        svc.Client.GetALL();
+
+                        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+                        {
+                            if (svc == null)
+                                Console.WriteLine("svc is null");
+                            svc.Client.Get(1);
+                            svc.Client.GetALL();
+                            System.Threading.Thread.Sleep(10);
+                            //        Console.WriteLine("true");
+                        }
                     }
-                    countdown.Signal();
+                    catch(Exception ex) { Console.WriteLine("false:"+ex.StackTrace); }
+                    finally
+                    {
+                        countdown.Signal();
+                    }
                 }));
             }
 

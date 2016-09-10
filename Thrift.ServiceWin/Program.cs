@@ -22,7 +22,12 @@ namespace Thrift.ServiceWin
             //Thrift.Server.ThriftLog._eventError = (x) => { LogHelper.Error(x); };
             Thrift.Server.Server.Start();
 
+            Console.WriteLine("按做任意键关闭");
             Console.ReadLine();
+
+            Console.WriteLine("关闭中...");
+            Thrift.Server.Server.Stop();
+            Console.WriteLine("关闭完成");
         }
     }
 }
