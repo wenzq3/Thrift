@@ -100,7 +100,7 @@ namespace Thrift.ClientWin
                             svc.Client.Get(1);
                             svc.Client.GetALL();
                             System.Threading.Thread.Sleep(10);
-                            //        Console.WriteLine("true");
+                                Console.WriteLine("true");
                         }
                     }
                     catch(Exception ex) { Console.WriteLine("false:"+ex.StackTrace); }
