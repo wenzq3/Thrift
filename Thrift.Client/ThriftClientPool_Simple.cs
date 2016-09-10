@@ -120,6 +120,7 @@ namespace Thrift.Client
             //超过最大空闲
             if (_clients.Count() >= _config.Config.MaxConnectionsIdle)
             {
+                ThriftLog.Info($"当前连接数：{_count},超过最大空闲数：{_config.Config.MaxConnectionsIdle}，如果此条信息过多，请增加最大空闲数");
                 try
                 {
                     client.Item1.Close();
