@@ -13,7 +13,7 @@ namespace Thrift.Server
     /// <summary>
     /// 自动注册服务
     /// </summary>
-    internal class RegeditConfig
+    public class RegeditConfig
     {
         private ZooKeeper _zk = null;
         private List<ACL> _zk_Acl;

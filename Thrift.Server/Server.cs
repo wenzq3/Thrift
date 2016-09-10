@@ -15,12 +15,12 @@ namespace Thrift.Server
 {
     public class Server
     {
-        private static List<TServer> _services;
+        private static Dictionary<TServer, RegeditConfig> _services;
         private const int _delayedTime = 20000;//延时关闭服务时间
 
         public static void Start()
         {
-            _services = new List<TServer>();
+            _services = new Dictionary<TServer, RegeditConfig>();
 
             var _configPath = ConfigurationManager.AppSettings["ThriftServerConfigPath"];
             Config.ThriftConfigSection config = null;
@@ -62,11 +62,12 @@ namespace Thrift.Server
 
                             });
 
+                        RegeditConfig regiditConfig = null;
                         if (!string.IsNullOrEmpty(service.ZnodeParent))
-                            ConfigCenter.RegeditServer(service); //zookeeper 注册服务
+                            regiditConfig = ConfigCenter.RegeditServer(service); //zookeeper 注册服务
 
                         ThriftLog.Info($"{service.Name} {service.Port} Starting the TThreadPoolServer...");
-                        _services.Add(server);
+                        _services.Add(server, regiditConfig);
                         server.Serve();
                     }
                     catch (Exception ex)
@@ -75,20 +76,27 @@ namespace Thrift.Server
                     }
                 }).Start();
             }
-
         }
 
         public static void Stop()
         {
-            ConfigCenter.LogoutServer(); //先注销zookeeper
+            //先注销zookeeper
+            foreach (var server in _services)
+            {
+                if (server.Value != null)
+                    server.Value.Logout();
+            }
 
             System.Threading.Thread.Sleep(_delayedTime); //延时关闭
 
-            foreach (TServer server in _services)
+            //再关闭服务
+            foreach (var server in _services)
             {
-                if (server != null)
-                    server.Stop();
+                if (server.Key != null)
+                    server.Key.Stop();
             }
+
+            _services.Clear();
         }
     }
 }
