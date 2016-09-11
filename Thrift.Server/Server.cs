@@ -16,7 +16,7 @@ namespace Thrift.Server
     public class Server
     {
         private static Dictionary<TServer, RegeditConfig> _services;
-        private const int _delayedTime = 5000;//延时关闭服务时间
+        private const int _delayedTime = 20000;//延时关闭服务时间
 
         public static void Start()
         {
