@@ -41,8 +41,8 @@
  svc.Client.GetALL();
                     }
                     
-					>集群模式下
-					>using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+>集群模式下
+>using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
                     {
  svc.Client.Get(1);
  svc.Client.GetALL();
