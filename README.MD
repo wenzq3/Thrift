@@ -36,8 +36,6 @@
 
 >单服务器下
 
-> &nbsp;
-
 >using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClientSimple("GameThriftService"))
                     {
  svc.Client.Get(1);
@@ -45,8 +43,6 @@
                     }
                     
 >集群模式下
-
-> &nbsp;
 
 >using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
                     {
