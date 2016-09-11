@@ -25,7 +25,7 @@ namespace Thrift.Client
         private object _lockHelper = new object();
         private object _lockPopHelper = new object();
 
-        private List<Tuple<string, string>> _listPop = new List<Tuple<string, string>>();
+        private Dictionary<string, string> _listPop = new Dictionary<string, string>();
         private HashSet<string> _hashErrorPop = new HashSet<string>();
 
         public ThriftClientPool(string sectionName, string serviceName)
@@ -66,18 +66,11 @@ namespace Thrift.Client
             //回收连接时进行过滤
             lock (_lockPopHelper)
             {
-                foreach (var p in _listPop)
+                _hashErrorPop = new HashSet<string>();
+                foreach (var item in _listPop)
                 {
-                    Console.WriteLine(p.Item1 + " " + p.Item2);
-                }
-                var errPop = _listPop.FindAll(x => !_config.Config.Host.Contains(x.Item2));
-                if (errPop != null)
-                {
-                    _hashErrorPop = new HashSet<string>();
-                    foreach (var item in errPop)
-                    {
-                        _hashErrorPop.Add(item.Item1);
-                    }
+                    if (!_config.Config.Host.Contains(item.Value))
+                        _hashErrorPop.Add(item.Key);
                 }
             }
         }
@@ -147,7 +140,7 @@ namespace Thrift.Client
 
             lock (_lockPopHelper)
             {
-                _listPop.RemoveAll(x => x.Item1 == token);
+                _listPop.Remove(token);
             }
 
             //错误的连接
@@ -193,8 +186,7 @@ namespace Thrift.Client
         {
             lock (_lockPopHelper)
             {
-                Console.WriteLine("Destroy");
-                _listPop.RemoveAll(x => x.Item1 == token);
+                _listPop.Remove(token);
             }
             _count--;
         }
@@ -216,7 +208,7 @@ namespace Thrift.Client
                 var value = client.Value;
                 lock (_lockPopHelper)
                 {
-                    _listPop.Add(Tuple.Create(value.Token, value.Host));
+                    _listPop.Add(value.Token, value.Host);
                     return value;
                 }
             }

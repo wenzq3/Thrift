@@ -63,6 +63,7 @@
     <Compile Include="Common\ZookeeperWatcherHelp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThriftClient.cs" />
+    <Compile Include="ThriftClientPool - 复制.cs" />
     <Compile Include="ThriftClient_Simple.cs" />
     <Compile Include="ThriftClientConfig.cs" />
     <Compile Include="ThriftClientFactory.cs" />
