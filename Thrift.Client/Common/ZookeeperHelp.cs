@@ -66,8 +66,11 @@ namespace Thrift.Client
         public static List<ACL> GetACL(string digest)
         {
             List<ACL> acl = new List<ACL>();
-            string admin = generateDigest(digest);
-            acl.Add(new ACL(Perms.ALL, new ZKId("digest", admin)));
+            if (!string.IsNullOrEmpty(digest))
+            {
+                string admin = generateDigest(digest);
+                acl.Add(new ACL(Perms.ALL, new ZKId("digest", admin)));
+            }
 
             string guest = generateDigest("guest:guest");
             acl.Add(new ACL(Perms.READ, new ZKId("digest", guest)));

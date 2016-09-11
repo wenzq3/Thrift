@@ -13,18 +13,18 @@ using ZooKeeperNet;
 namespace Thrift.Client
 {
     /// <summary>
-    /// 简单的连接池管理，（极小的概率下,当回收的连接不可用时，可能会回收到连接池中，下次使用时可能报错)。
+    /// 简单的连接池管理，（集群模式下，收到服务关闭通知时，不会删除所有的不可用连接，下次使用时可能报错)。
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ThriftClientPool<T> where T : class
+    public class ThriftClientPoolSimple<T> where T : class
     {
-        private ConcurrentQueue<Lazy<ThriftClient<T>>> _clients = new ConcurrentQueue<Lazy<ThriftClient<T>>>();
+        private ConcurrentQueue<Lazy<ThriftClientSimple<T>>> _clients = new ConcurrentQueue<Lazy<ThriftClientSimple<T>>>();
 
         private ThriftClientConfig _config;
         private int _count = 0;//已创建的连接数量
         private object lockHelper = new object();
 
-        public ThriftClientPool(string sectionName, string serviceName)
+        public ThriftClientPoolSimple(string sectionName, string serviceName)
         {
             _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool);
 
@@ -46,7 +46,7 @@ namespace Thrift.Client
             int count = _clients.Count;
             for (int i = 0; i < count; i++)
             {
-                Lazy<ThriftClient<T>> client = null;
+                Lazy<ThriftClientSimple<T>> client = null;
                 if (!_clients.TryDequeue(out client))
                     break;
 
@@ -73,10 +73,10 @@ namespace Thrift.Client
                     if (_count >= _config.Config.MaxConnectionsNum)
                         return;
 
-                    Lazy<ThriftClient<T>> client = new Lazy<ThriftClient<T>>(() =>
+                    Lazy<ThriftClientSimple<T>> client = new Lazy<ThriftClientSimple<T>>(() =>
                     {
                         var item = ThriftClientFactory.Create(_config.Config);
-                        return new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3);
+                        return new ThriftClientSimple<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3);
                     });
 
                     _clients.Enqueue(client);
@@ -90,9 +90,9 @@ namespace Thrift.Client
         /// 从连接池返回一个可用连接
         /// </summary>
         /// <returns></returns>
-        public ThriftClient<T> Pop()
+        public ThriftClientSimple<T> Pop()
         {
-            ThriftClient<T> client = GetOrCreateConnection(false);
+            ThriftClientSimple<T> client = GetOrCreateConnection(false);
             if (client != null) return client;
 
             int count = 0;
@@ -134,7 +134,7 @@ namespace Thrift.Client
                 return;
             }
 
-            _clients.Enqueue(new Lazy<ThriftClient<T>>(() => new ThriftClient<T>(client, this, host)));
+            _clients.Enqueue(new Lazy<ThriftClientSimple<T>>(() => new ThriftClientSimple<T>(client, this, host)));
         }
 
         public void Destroy()
@@ -146,9 +146,9 @@ namespace Thrift.Client
         /// 返回连接或创建
         /// </summary>
         /// <returns></returns>
-        private ThriftClient<T> GetOrCreateConnection(bool create)
+        private ThriftClientSimple<T> GetOrCreateConnection(bool create)
         {
-            Lazy<ThriftClient<T>> client = null;
+            Lazy<ThriftClientSimple<T>> client = null;
             if (_clients.TryDequeue(out client))
                 return client.Value;
             else

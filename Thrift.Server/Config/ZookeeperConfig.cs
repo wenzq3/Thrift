@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Thrift.Client.Config
+namespace Thrift.Server.Config
 {
     public class ZookeeperConfig : ConfigurationElement
     {
@@ -35,10 +35,10 @@ namespace Thrift.Client.Config
         {
             get { return (int)this["connectInterval"]; }
         }
-        
+
 
         /// <summary>
-        /// 父级节点路径 
+        /// 父级节点路径  RPC服务的注册上级节点
         /// </summary>
         [ConfigurationProperty("nodeParent", IsRequired = true)]
         public string NodeParent
@@ -54,5 +54,6 @@ namespace Thrift.Client.Config
         {
             get { return (string)this["digest"]; }
         }
+
     }
 }

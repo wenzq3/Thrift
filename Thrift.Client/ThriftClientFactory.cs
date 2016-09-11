@@ -44,7 +44,7 @@ namespace Thrift.Client
             int num = new Random().Next(0, listUri.Count);
             string host = listUri[num];
 
-         //   Console.WriteLine(config.Host + "--" + host);
+            Console.WriteLine(config.Host + "--" + host);
             TTransport transport = new TSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout);
             TProtocol protocol = new TBinaryProtocol(transport);
 

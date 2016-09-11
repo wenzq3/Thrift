@@ -66,7 +66,7 @@ namespace Thrift.Client
             {
                 if (service.Name != _serviceName) continue;
 
-                if (service.ZookeeperConfig == null || service.ZookeeperConfig.ZHost == "")
+                if (service.ZookeeperConfig == null || service.ZookeeperConfig.Host == "")
                     return service;
 
                 bool isConnZk = SetServerConfig(service, watch);
@@ -92,17 +92,17 @@ namespace Thrift.Client
         {
             try
             {
-                var zk = ZookeeperHelp.CreateClient(service.ZookeeperConfig.ZHost, service.ZookeeperConfig.SessionTimeout, null, "TestUser:123456");
+                var zk = ZookeeperHelp.CreateClient(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, null, "TestUser:123456");
 
                 if (zk == null)
-                    throw new Exception($"Zookeeper服务 {service.ZookeeperConfig.ZHost} 连接失败");
+                    throw new Exception($"Zookeeper服务 {service.ZookeeperConfig.Host} 连接失败");
 
-                var children = ZookeeperHelp.GetChildren(zk, service.ZookeeperConfig.ZNodeParent);
+                var children = ZookeeperHelp.GetChildren(zk, service.ZookeeperConfig.NodeParent);
                 if (children != null && children.Count > 0)
                     service.Host = string.Join(",", children);
 
                 if (watch)
-                    WatchServer(zk, service.ZookeeperConfig.ZNodeParent);
+                    WatchServer(zk, service.ZookeeperConfig.NodeParent);
 
                 return true;
             }

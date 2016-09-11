@@ -74,6 +74,7 @@
     <Compile Include="ConfigCenter\ConfigCenter.cs" />
     <Compile Include="ConfigCenter\IpLimitConfig.cs" />
     <Compile Include="ConfigCenter\RegeditConfig.cs" />
+    <Compile Include="Config\ZookeeperConfig.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConfigCenter\Task.cs" />

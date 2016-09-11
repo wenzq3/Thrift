@@ -18,28 +18,22 @@ namespace Thrift.Server
         private ZooKeeper _zk = null;
         private List<ACL> _zk_Acl;
         private Service _service;
-        private string _host;
-        private string _digest;
-        private int _sessionTimeout;
-        private bool _isLogout;
+
+        private bool _isLogout; //是不注销
 
 
-        public RegeditConfig(string host, int sessionTimeout, string digest, Service service)
+        public RegeditConfig(Service service)
         {
-            _host = host;
-            _digest = digest;
-            _sessionTimeout = sessionTimeout;
-
-            _zk_Acl = ZookeeperHelp.GetACL(_digest);
-
             _service = service;
             _isLogout = false;
+
+            _zk_Acl = ZookeeperHelp.GetACL(_service.ZookeeperConfig.Digest);
         }
 
         public ZooKeeper GetZk()
         {
             if (_zk == null)
-                _zk = ZookeeperHelp.CreateClient(_host, _sessionTimeout, null, _digest);
+                _zk = ZookeeperHelp.CreateClient(_service.ZookeeperConfig.Host, _service.ZookeeperConfig.SessionTimeout, null, _service.ZookeeperConfig.Digest);
             return _zk;
         }
 
@@ -52,7 +46,7 @@ namespace Thrift.Server
                 if (_host == "")
                     throw new Exception("当前服务IP地址不能为空");
             }
-            var zNode = $"{_service.ZnodeParent}/{_host}:{_service.Port}-{_service.Weight}";
+            var zNode = $"{_service.ZookeeperConfig.NodeParent}/{_host}:{_service.Port}-{_service.Weight}";
 
             new System.Threading.Thread(() =>
             {
@@ -73,7 +67,7 @@ namespace Thrift.Server
         /// </summary>
         private void CheckNodeParent()
         {
-            string[] list = _service.ZnodeParent.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] list = _service.ZookeeperConfig.NodeParent.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < list.Count(); i++)
             {
                 string zNode = "";

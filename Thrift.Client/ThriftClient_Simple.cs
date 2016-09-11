@@ -7,13 +7,13 @@ using Thrift.Transport;
 
 namespace Thrift.Client
 {
-    public class ThriftClient<T> : IDisposable where T : class
+    public class ThriftClientSimple<T> : IDisposable where T : class
     {
         private Tuple<TTransport, T> _client;
-        private ThriftClientPool<T> _clientPool;
+        private ThriftClientPoolSimple<T> _clientPool;
         private string _host;
 
-        public ThriftClient(Tuple<TTransport, T> client, ThriftClientPool<T> clientPool, string host)
+        public ThriftClientSimple(Tuple<TTransport, T> client, ThriftClientPoolSimple<T> clientPool, string host)
         {
             _client = client;
             _clientPool = clientPool;
@@ -52,7 +52,7 @@ namespace Thrift.Client
 
         bool disposed = false;
 
-        ~ThriftClient()
+        ~ThriftClientSimple()
         {
             Dispose(false);
         }

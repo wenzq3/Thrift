@@ -94,6 +94,7 @@ namespace Thrift.ClientWin
                     {
 
                         using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+                        //        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClientSimple("GameThriftService"))
                         {
                             if (svc == null)
                                 Console.WriteLine("svc is null");
@@ -101,10 +102,10 @@ namespace Thrift.ClientWin
                             svc.Client.GetALL();
                             System.Threading.Thread.Sleep(10);
 
-                      //      Console.WriteLine("true");
+                            //      Console.WriteLine("true");
                         }
                     }
-                    catch(Exception ex) { Console.WriteLine("false:"+ex.StackTrace); }
+                    catch (Exception ex) { Console.WriteLine("false:" + ex.StackTrace); }
                     finally
                     {
                         countdown.Signal();
@@ -115,6 +116,7 @@ namespace Thrift.ClientWin
             for (int i = 0; i < het; i++)
             {
                 threads[i].Start();
+                //            System.Threading.Thread.Sleep(10);
             }
 
             while (!countdown.IsSet) ;

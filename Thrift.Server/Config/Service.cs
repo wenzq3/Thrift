@@ -89,21 +89,21 @@ namespace Thrift.Server.Config
         }
 
         /// <summary>
-        /// RPC服务的注册上级节点
-        /// </summary>
-        [ConfigurationProperty("znodeParent", IsRequired = false, DefaultValue ="")]
-        public string ZnodeParent
-        {
-            get { return (string)this["znodeParent"]; }
-        }
-
-        /// <summary>
         /// 服务器权重
         /// </summary>
         [ConfigurationProperty("weight", IsRequired = false, DefaultValue = 1)]
         public int Weight
         {
             get { return (int)this["weight"]; }
+        }
+
+        /// <summary>
+        /// zookeeper 配置 获取地址与端口号
+        /// </summary>
+        [ConfigurationProperty("ZookeeperConfig", IsRequired = false, DefaultValue = null)]
+        public ZookeeperConfig ZookeeperConfig
+        {
+            get { return this["ZookeeperConfig"] as ZookeeperConfig; }
         }
     }
 }
