@@ -10,13 +10,14 @@ using ZooKeeperNet;
 
 namespace Thrift.Client
 {
-    public class ThriftClientConfig 
+    public class ThriftClientConfig
     {
         private Config.Service _config;
         private string _sectionName, _serviceName;
         private string _configPath;
+        private ZooKeeper _zk;
 
-        private Action  _updateHostDelegate=null; //服务主机更改通知
+        private Action _updateHostDelegate = null; //服务主机更改通知
 
         public ThriftClientConfig(string sectionName, string serviceName, Action updateHostDelegate)
         {
@@ -58,7 +59,7 @@ namespace Thrift.Client
                 config = ConfigurationManager.OpenMappedExeConfiguration(new ExeConfigurationFileMap
                 {
                     ExeConfigFilename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _configPath)
-            }, ConfigurationUserLevel.None).GetSection(_sectionName) as Config.ThriftConfigSection;
+                }, ConfigurationUserLevel.None).GetSection(_sectionName) as Config.ThriftConfigSection;
             }
 
 
@@ -92,17 +93,18 @@ namespace Thrift.Client
         {
             try
             {
-                var zk = ZookeeperHelp.CreateClient(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, null, "TestUser:123456");
+                if (_zk == null)
+                    _zk = ZookeeperHelp.CreateClient(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, null, "");
 
-                if (zk == null)
+                if (_zk == null)
                     throw new Exception($"Zookeeper服务 {service.ZookeeperConfig.Host} 连接失败");
 
-                var children = ZookeeperHelp.GetChildren(zk, service.ZookeeperConfig.NodeParent);
+                var children = ZookeeperHelp.GetChildren(_zk, service.ZookeeperConfig.NodeParent);
                 if (children != null && children.Count > 0)
                     service.Host = string.Join(",", children);
 
                 if (watch)
-                    WatchServer(zk, service.ZookeeperConfig.NodeParent);
+                    WatchServer(_zk, service.ZookeeperConfig.NodeParent);
 
                 return true;
             }
@@ -125,7 +127,7 @@ namespace Thrift.Client
                 {
                     isRegister = ZookeeperWatcherHelp.Register(zk, znode, null, (@event, nodeData) =>
                      {
-                             _config = GetConfig(false);
+                         _config = GetConfig(false);
                          if (_updateHostDelegate != null)
                              _updateHostDelegate();
                      });

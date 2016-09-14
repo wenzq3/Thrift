@@ -86,7 +86,6 @@ namespace Thrift.Client
             {
                 _client = null;
                 _clientPool.Destroy();
-                System.GC.Collect();
             }
         }
     }

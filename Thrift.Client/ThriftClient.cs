@@ -109,7 +109,6 @@ namespace Thrift.Client
             {
                 _client = null;
                 _clientPool.Destroy(_token);
-                System.GC.Collect();
             }
         }
     }

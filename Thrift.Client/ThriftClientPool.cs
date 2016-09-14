@@ -97,7 +97,7 @@ namespace Thrift.Client
 
                     _clients.Enqueue(client);
                     _count++;
-                    ThriftLog.Info("创建连接池：" + _count);
+                    ThriftLog.Info("连接池数：" + _count);
                 }
             }
         }

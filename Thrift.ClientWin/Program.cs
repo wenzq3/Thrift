@@ -17,24 +17,24 @@ namespace Thrift.ClientWin
     {
         static void Main(string[] args)
         {
-            //while (true)
-            //{
-            //    try
-            //    {
-            //        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
-            //        {
-            //            svc.Client.Get(1);
-            //            //   Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
-            //            //Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
-            //            Console.WriteLine("true");
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        Console.WriteLine("false" + ex.Message);
-            //    }
-            //    System.Threading.Thread.Sleep(500);
-            //}
+            while (true)
+            {
+                try
+                {
+                    using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+                    {
+                        svc.Client.Get(1);
+                        //   Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
+                        //Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
+                        Console.WriteLine("true");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("false" + ex.Message);
+                }
+                System.Threading.Thread.Sleep(500);
+            }
 
             int het = 1000;
 

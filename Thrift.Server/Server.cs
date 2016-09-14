@@ -16,7 +16,7 @@ namespace Thrift.Server
     public class Server
     {
         private static Dictionary<TServer, RegeditConfig> _services;
-        private const int _delayedTime = 20000;//延时关闭服务时间
+        private const int _delayedTime = 30000;//延时关闭服务时间
 
         public static void Start()
         {
@@ -63,7 +63,7 @@ namespace Thrift.Server
                             });
 
                         RegeditConfig regiditConfig = null;
-                        if (service.ZookeeperConfig != null)
+                        if (service.ZookeeperConfig != null && service.ZookeeperConfig.Host != "")
                             regiditConfig = ConfigCenter.RegeditServer(service); //zookeeper 注册服务
 
                         ThriftLog.Info($"{service.Name} {service.Port} Starting the TThreadPoolServer...");

@@ -27,7 +27,10 @@ namespace Thrift.Server
             _service = service;
             _isLogout = false;
 
-            _zk_Acl = ZookeeperHelp.GetACL(_service.ZookeeperConfig.Digest);
+            //  if (string.IsNullOrEmpty(_service.ZookeeperConfig.Digest))
+            _zk_Acl = Ids.OPEN_ACL_UNSAFE;
+            //    else
+            //        _zk_Acl = ZookeeperHelp.GetACL(_service.ZookeeperConfig.Digest);
         }
 
         public ZooKeeper GetZk()
