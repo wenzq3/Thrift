@@ -56,7 +56,7 @@ namespace Thrift.IDLHelp
                 Namespace = type.Namespace;
 
             if (string.IsNullOrEmpty(serviceName))
-                serviceName = type.Name+"Thrift";
+                serviceName = type.Name + "Thrift";
 
 
             foreach (var itemType in types)
@@ -146,7 +146,7 @@ namespace Thrift.IDLHelp
                 fs.Close();
             }
 
-         //   Console.WriteLine(str.ToString());
+           // Console.WriteLine(str.ToString());
 
             return Tuple.Create(Namespace, serviceName, str.ToString());
         }
@@ -195,27 +195,42 @@ namespace Thrift.IDLHelp
                     return "double";
                 case "System.Byte[]":
                     return "binary";
+
+                case "System.String[]":
+                    return "list<string>";
+                case "System.Int16[]":
+                    return "list<i16>";
+                case "System.Int32[]":
+                    return "list<i32>";
+                case "System.Int64[]":
+                    return "list<i64>";
+                case "System.SByte[]":
+                    return "list<byte>";
+                case "System.Boolean[]":
+                    return "list<bool>";
+                case "System.Double[]":
+                    return "list<double>";
             }
 
-            if (type.IndexOf("System.Collections.Generic.List`1")==0)
+            if (type.IndexOf("System.Collections.Generic.List`1") == 0)
             {
                 string p = type.Substring("System.Collections.Generic.List`1[".Length, type.Length - "System.Collections.Generic.List`1[".Length - 1);
                 return $"list<{GetThriftType(p)}>";
             }
 
-            if (type.IndexOf("System.Collections.Generic.Dictionary`2")==0)
+            if (type.IndexOf("System.Collections.Generic.Dictionary`2") == 0)
             {
                 string[] p = type.Substring("System.Collections.Generic.Dictionary`2[".Length, type.Length - "System.Collections.Generic.Dictionary`2[".Length - 1).Split(',');
                 return $"map<{GetThriftType(p[0])},{GetThriftType(p[1])}>";
             }
 
-            if (type.IndexOf("System.Collections.Generic.ISet`1")==0)
+            if (type.IndexOf("System.Collections.Generic.ISet`1") == 0)
             {
                 string p = type.Substring("System.Collections.Generic.ISet`1[".Length, type.Length - "System.Collections.Generic.ISet`1[".Length - 1);
                 return $"set<{GetThriftType(p)}>";
             }
 
-            if (type.IndexOf("System.Threading.Tasks.Task`1")==0)
+            if (type.IndexOf("System.Threading.Tasks.Task`1") == 0)
             {
                 string p = type.Substring("System.Threading.Tasks.Task`1[".Length, type.Length - "System.Threading.Tasks.Task`1[".Length - 1);
                 return GetThriftType(p);
@@ -231,11 +246,11 @@ namespace Thrift.IDLHelp
         {
             switch (type)
             {
+                case "System.Void":
+                    return true;
                 case "System.Type":
                     return true;
                 case "System.Object":
-                    return true;
-                case "System.Void":
                     return true;
                 case "System.String":
                     return true;
@@ -253,7 +268,26 @@ namespace Thrift.IDLHelp
                     return true;
                 case "System.Byte[]":
                     return true;
-           }
+
+                case "System.Type[]":
+                    return true;
+                case "System.Object[]":
+                    return true;
+                case "System.String[]":
+                    return true;
+                case "System.Int16[]":
+                    return true;
+                case "System.Int32[]":
+                    return true;
+                case "System.Int64[]":
+                    return true;
+                case "System.SByte[]":
+                    return true;
+                case "System.Boolean[]":
+                    return true;
+                case "System.Double[]":
+                    return true;
+            }
 
             return false;
         }
@@ -318,7 +352,7 @@ namespace Thrift.IDLHelp
 
             if (className.IndexOf(",") > 0)
             {
-                 var cn = className.Substring(0, className.IndexOf(","));
+                var cn = className.Substring(0, className.IndexOf(","));
                 var an = className.Substring(className.IndexOf(",") + 2, className.IndexOf(",", className.IndexOf(",") + 1) - className.IndexOf(",") - 2);
 
                 className = cn;

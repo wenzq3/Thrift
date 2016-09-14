@@ -209,6 +209,21 @@ namespace Thrift.IDLHelp
                     return "double";
                 case "System.Byte[]":
                     return "binary";
+
+                case "System.String[]":
+                    return "list<string>";
+                case "System.Int16[]":
+                    return "list<i16>";
+                case "System.Int32[]":
+                    return "list<i32>";
+                case "System.Int64[]":
+                    return "list<i64>";
+                case "System.SByte[]":
+                    return "list<byte>";
+                case "System.Boolean[]":
+                    return "list<bool>";
+                case "System.Double[]":
+                    return "list<double>";
             }
 
             if (type.IndexOf("System.Collections.Generic.List`1") == 0)
@@ -238,24 +253,18 @@ namespace Thrift.IDLHelp
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
 
-            if (ditModel.ContainsKey(type))
-                return ditModel[type];
-
-            if (type.IndexOf(".") > 0)
-                return type.Substring(type.LastIndexOf(".") + 1);
-            else
-                return type;
+            return type.Replace(".", "_");
         }
 
         private bool isSystemType(string type)
         {
             switch (type)
             {
+                case "System.Void":
+                    return true;
                 case "System.Type":
                     return true;
                 case "System.Object":
-                    return true;
-                case "System.Void":
                     return true;
                 case "System.String":
                     return true;
@@ -272,6 +281,25 @@ namespace Thrift.IDLHelp
                 case "System.Double":
                     return true;
                 case "System.Byte[]":
+                    return true;
+
+                case "System.Type[]":
+                    return true;
+                case "System.Object[]":
+                    return true;
+                case "System.String[]":
+                    return true;
+                case "System.Int16[]":
+                    return true;
+                case "System.Int32[]":
+                    return true;
+                case "System.Int64[]":
+                    return true;
+                case "System.SByte[]":
+                    return true;
+                case "System.Boolean[]":
+                    return true;
+                case "System.Double[]":
                     return true;
             }
 
