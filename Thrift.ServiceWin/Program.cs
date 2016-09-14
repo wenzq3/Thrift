@@ -12,7 +12,7 @@ namespace Thrift.ServiceWin
     {
         static void Main(string[] args)
         {
-            Console.Read();
+           // Console.Read();
             //生成使用代码
             //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
             //Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();

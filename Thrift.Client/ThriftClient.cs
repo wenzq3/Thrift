@@ -53,7 +53,7 @@ namespace Thrift.Client
                 }
                 catch (Exception ex)
                 {
-                    ThriftLog.Info($"销毁连接： {_host} {_token} {ex.Message}");
+                    ThriftLog.Info($"销毁连接： {_host} {ex.Message}");
                     Destroy();
                     return null;
                 }
