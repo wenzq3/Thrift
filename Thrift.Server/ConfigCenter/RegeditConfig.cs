@@ -140,11 +140,16 @@ namespace Thrift.Server
         /// </summary>
         private string GetAddressIP()
         {
+            List<string> ips = new List<string>();
             foreach (IPAddress _IPAddress in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
             {
                 if (_IPAddress.AddressFamily.ToString() == "InterNetwork")
-                    return _IPAddress.ToString();
+                {
+                    if (_IPAddress.ToString().IndexOf("192.") == 0) return _IPAddress.ToString();
+                    ips.Add(_IPAddress.ToString());
+                }
             }
+            if (ips.Count > 0) return ips[0];
 
             return "";
         }

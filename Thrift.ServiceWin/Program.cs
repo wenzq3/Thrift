@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace Thrift.ServiceWin
     {
         static void Main(string[] args)
         {
+            Console.Read();
             //生成使用代码
             //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
             //Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
