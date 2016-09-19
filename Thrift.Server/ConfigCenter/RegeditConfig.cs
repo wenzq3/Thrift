@@ -13,19 +13,21 @@ namespace Thrift.Server
     /// <summary>
     /// 自动注册服务
     /// </summary>
-    public class RegeditConfig
+    public class RegeditConfig : IWatcher
     {
-        private ZooKeeper _zk = null;
-        private List<ACL> _zk_Acl;
         private Service _service;
 
-        private bool _isLogout; //是不注销
+        private ZooKeeper _zk;
+        private List<ACL> _zk_Acl;
+
+        private bool _isLogout; //是否注销中
 
 
         public RegeditConfig(Service service)
         {
-            _service = service;
+            _zk = null;
             _isLogout = false;
+            _service = service;
 
             //  if (string.IsNullOrEmpty(_service.ZookeeperConfig.Digest))
             _zk_Acl = Ids.OPEN_ACL_UNSAFE;
@@ -33,15 +35,16 @@ namespace Thrift.Server
             //        _zk_Acl = ZookeeperHelp.GetACL(_service.ZookeeperConfig.Digest);
         }
 
-        public ZooKeeper GetZk()
+        private bool Regedit()
         {
-            if (_zk == null)
-                _zk = ZookeeperHelp.CreateClient(_service.ZookeeperConfig.Host, _service.ZookeeperConfig.SessionTimeout, null, _service.ZookeeperConfig.Digest);
-            return _zk;
-        }
+            _zk = ZookeeperHelp.CreateClient(_service.ZookeeperConfig.Host, _service.ZookeeperConfig.SessionTimeout, this, _service.ZookeeperConfig.Digest);
 
-        public void Init()
-        {
+            if (_zk == null)
+            {
+                ThriftLog.Info($"Zookeeper服务 {_service.ZookeeperConfig.Host} 连接失败");
+                return false;
+            }
+
             string _host = _service.Host;
             if (string.IsNullOrEmpty(_host))
             {
@@ -56,6 +59,26 @@ namespace Thrift.Server
                 CheckNodeParent();
                 Regedit(zNode);
             }).Start();
+
+            return true;
+        }
+
+        public void Start()
+        {
+            _zk = null;
+
+            bool isConnZk = Regedit();
+            if (!isConnZk)
+            {
+                new System.Threading.Thread(() =>
+                {
+                    while (!isConnZk)
+                    {
+                        System.Threading.Thread.Sleep(_service.ZookeeperConfig.ConnectInterval);
+                        isConnZk = Regedit();
+                    }
+                }).Start();
+            }
         }
 
         public void Logout()
@@ -79,18 +102,18 @@ namespace Thrift.Server
 
                 try
                 {
-                    var stat = GetZk().Exists(zNode, true);
+                    var stat = _zk.Exists(zNode, true);
                     if (stat == null)
                     {
                         if (zNode == "/ThriftServer") //thrift服务的根目录
-                            GetZk().Create(zNode, null, Ids.OPEN_ACL_UNSAFE, CreateMode.Persistent);
+                            _zk.Create(zNode, null, Ids.OPEN_ACL_UNSAFE, CreateMode.Persistent);
                         else
-                            GetZk().Create(zNode, null, _zk_Acl, CreateMode.Persistent);
+                            _zk.Create(zNode, null, _zk_Acl, CreateMode.Persistent);
                     }
                 }
                 catch (Exception ex)
                 {
-                    ThriftLog.Error(ex.Message + ex.StackTrace);
+                    ThriftLog.Error("zk:创建父结点异常:" + ex.Message + ex.StackTrace);
                 }
             }
         }
@@ -112,7 +135,7 @@ namespace Thrift.Server
 
                 try
                 {
-                    GetZk().Create(zNode, null, _zk_Acl, CreateMode.Ephemeral);
+                    _zk.Create(zNode, null, _zk_Acl, CreateMode.Ephemeral);
                     isRegister = true;
                     ThriftLog.Info($"{zNode}节点注册完成 ");
                 }
@@ -135,6 +158,16 @@ namespace Thrift.Server
             }
         }
 
+
+        public void Process(WatchedEvent @event)
+        {
+            Console.WriteLine(@event.State.ToString());
+            if (@event.State == KeeperState.Disconnected)
+            {
+                ThriftLog.Info("WatchedEvent :" + @event.State.ToString() + " 重新注册zk");
+                Start();
+            }
+        }
         /// <summary>
         /// 获取本地IP地址信息
         /// </summary>

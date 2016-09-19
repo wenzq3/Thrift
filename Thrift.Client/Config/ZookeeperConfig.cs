@@ -19,7 +19,7 @@ namespace Thrift.Client.Config
         }
 
         /// <summary>
-        /// zookeeper 服务地址
+        /// zookeeper 
         /// </summary>
         [ConfigurationProperty("sessionTimeout", IsRequired = false, DefaultValue = 5000)]
         public int SessionTimeout
@@ -30,7 +30,7 @@ namespace Thrift.Client.Config
         /// <summary>
         /// zookeeper 重连间隔时间
         /// </summary>
-        [ConfigurationProperty("connectInterval", IsRequired = false, DefaultValue = 10000)]
+        [ConfigurationProperty("connectInterval", IsRequired = false, DefaultValue = 5000)]
         public int ConnectInterval
         {
             get { return (int)this["connectInterval"]; }

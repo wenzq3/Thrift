@@ -10,7 +10,7 @@ using ZooKeeperNet;
 
 namespace Thrift.Client
 {
-    public class ThriftClientConfig
+    public class ThriftClientConfig : IWatcher
     {
         private Config.Service _config;
         private string _sectionName, _serviceName;
@@ -94,7 +94,7 @@ namespace Thrift.Client
             try
             {
                 if (_zk == null)
-                    _zk = ZookeeperHelp.CreateClient(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, null, "");
+                    _zk = ZookeeperHelp.CreateClient(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, this, "");
 
                 if (_zk == null)
                     throw new Exception($"Zookeeper服务 {service.ZookeeperConfig.Host} 连接失败");
@@ -135,6 +135,18 @@ namespace Thrift.Client
                     System.Threading.Thread.Sleep(10000);
                 }
             }).Start();
+        }
+
+        public void Process(WatchedEvent @event)
+        {
+            //      Console.WriteLine(@event.State.ToString());
+            if (@event.State == KeeperState.Disconnected)
+            {
+                ThriftLog.Info("WatchedEvent :" + @event.State.ToString() + " 重新连接zk");
+                _zk = null;
+                _config = GetConfig(true);
+            }
+
         }
     }
 }

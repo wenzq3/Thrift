@@ -20,7 +20,7 @@ namespace Thrift.Server
         public static RegeditConfig RegeditServer(Service service)
         {
             RegeditConfig _regeditConfig = new RegeditConfig(service);
-            _regeditConfig.Init();
+            _regeditConfig.Start();
             return _regeditConfig;
         }
     }

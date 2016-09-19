@@ -31,6 +31,7 @@ namespace Thrift.Client
                 if (count++ > 2000)
                 {
                     //  throw new Exception("连接异常");
+                    zk.Dispose();
                     return null;
                 }
                 System.Threading.Thread.Sleep(1);
