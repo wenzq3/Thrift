@@ -29,7 +29,7 @@ namespace Thrift.Client.Config
         /// <summary>
         /// 最小连接数
         /// </summary>
-        [ConfigurationProperty("minConnectionsNum", IsRequired = false, DefaultValue = 10)]
+        [ConfigurationProperty("minConnectionsNum", IsRequired = false, DefaultValue = 5)]
         public int MinConnectionsNum
         {
             get { return (int)this["minConnectionsNum"]; }
@@ -56,7 +56,7 @@ namespace Thrift.Client.Config
         /// <summary>
         /// 最大空闲连接数
         /// </summary>
-        [ConfigurationProperty("maxConnectionsIdle", IsRequired = false, DefaultValue = 50)]
+        [ConfigurationProperty("maxConnectionsIdle", IsRequired = false, DefaultValue = 20)]
         public int MaxConnectionsIdle
         {
             get { return (int)this["maxConnectionsIdle"]; }

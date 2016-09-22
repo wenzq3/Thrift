@@ -164,6 +164,7 @@ namespace Thrift.Server
             Console.WriteLine(@event.State.ToString());
             if (@event.State == KeeperState.Disconnected)
             {
+                if (_isLogout) return;
                 ThriftLog.Info("WatchedEvent :" + @event.State.ToString() + " 重新注册zk");
                 Start();
             }

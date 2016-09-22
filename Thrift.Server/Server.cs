@@ -15,13 +15,11 @@ namespace Thrift.Server
 {
     public class Server
     {
-        private static Dictionary<TServer, RegeditConfig> _services;
-        private const int _delayedTime = 30000;//延时关闭服务时间
+        private static Dictionary<TServer, RegeditConfig> _services = new Dictionary<TServer, RegeditConfig>();
+        private const int _defaultDelayedTime = 20000; //默认延时关闭时间
 
         public static void Start()
         {
-            _services = new Dictionary<TServer, RegeditConfig>();
-
             var _configPath = ConfigurationManager.AppSettings["ThriftServerConfigPath"];
             Config.ThriftConfigSection config = null;
             if (string.IsNullOrEmpty(_configPath))
@@ -87,7 +85,14 @@ namespace Thrift.Server
                     server.Value.Logout();
             }
 
-            System.Threading.Thread.Sleep(_delayedTime); //延时关闭
+            if (_services.Count > 0)
+            {
+                int delayedTime = _defaultDelayedTime;
+                if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings["ThriftServerStopDelayedTime"]))
+                    delayedTime = int.Parse(ConfigurationManager.AppSettings["ThriftServerStopDelayedTime"]);
+
+                System.Threading.Thread.Sleep(delayedTime); //延时关闭
+            }
 
             //再关闭服务
             foreach (var server in _services)
