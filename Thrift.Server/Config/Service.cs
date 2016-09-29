@@ -18,31 +18,32 @@ namespace Thrift.Server.Config
         }
 
         /// <summary>
-        /// HandlerType
+        /// 实现dll
         /// </summary>
         [ConfigurationProperty("handlerType", IsRequired = true)]
         public string HandlerType
         {
             get { return (string)this["handlerType"]; }
         }
-
+        
         /// <summary>
-        /// ProcessType
+        /// 命名空间名称
         /// </summary>
-        [ConfigurationProperty("processType", IsRequired = true)]
-        public string ProcessType
+        [ConfigurationProperty("spaceName", IsRequired = true)]
+        public string SpaceName
         {
-            get { return (string)this["processType"]; }
+            get { return (string)this["spaceName"]; }
         }
 
         /// <summary>
-        /// IfaceType
+        /// 实现类名称
         /// </summary>
-        [ConfigurationProperty("ifaceType", IsRequired = true)]
-        public string IfaceType
+        [ConfigurationProperty("className", IsRequired = true)]
+        public string ClassName
         {
-            get { return (string)this["ifaceType"]; }
+            get { return (string)this["className"]; }
         }
+
         /// <summary>
         /// 最小连接数
         /// </summary>

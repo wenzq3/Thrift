@@ -19,13 +19,8 @@ namespace Thrift.ServiceWin
             //Console.WriteLine(help.Create(filePath, typeof(Thrift.Test.IGameService), "ThriftTest", "GameThriftService"));
             //Console.ReadLine();
 
-            //  Assembly assembly = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Thrift.Server.dll"));
-            //    object handle = assembly.CreateInstance(service.HandlerType.Split(',')[0], true);
-
-            LogHelper.Info("start");
             //启动服务
-            //Thrift.Server.ThriftLog._eventInfo = (x) => { LogHelper.Info(x); };
-            //Thrift.Server.ThriftLog._eventError = (x) => { LogHelper.Error(x); };
+            LogHelper.Info("start");
             Thrift.Server.Server.Start();
 
             Console.WriteLine("按做任意键关闭");
