@@ -6,17 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Thrift;
 using Thrift.Protocol;
+using Thrift.Server.Config;
 using Thrift.Transport;
 
 namespace Thrift.Server
 {
     public class BaseProcessor : TProcessor
     {
-        private TProcessor processor;
+        private TProcessor _processor;
+        private Service _service;
 
-        public BaseProcessor(TProcessor processor)
+        public BaseProcessor(TProcessor processor, Service service)
         {
-            this.processor = processor;
+            _processor = processor;
+            _service = service;
         }
 
         /** 
@@ -34,7 +37,7 @@ namespace Thrift.Server
                 return false;
             }
 
-            return processor.Process(iprot, oprot);
+            return _processor.Process(iprot, oprot);
         }
     }
 }

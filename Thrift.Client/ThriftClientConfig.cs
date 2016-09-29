@@ -139,7 +139,6 @@ namespace Thrift.Client
 
         public void Process(WatchedEvent @event)
         {
-            //      Console.WriteLine(@event.State.ToString());
             if (@event.State == KeeperState.Disconnected)
             {
                 ThriftLog.Info("WatchedEvent :" + @event.State.ToString() + " 重新连接zk");

@@ -20,7 +20,6 @@ namespace Thrift.Server
             long longIP = IPToLong(ip);
             foreach (var item in GetInstance())
             {
-
                 if (longIP >= item.Item1 && longIP <= item.Item2)
                     return true;
             }

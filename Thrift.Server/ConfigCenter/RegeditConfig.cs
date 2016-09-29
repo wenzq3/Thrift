@@ -161,7 +161,6 @@ namespace Thrift.Server
 
         public void Process(WatchedEvent @event)
         {
-            Console.WriteLine(@event.State.ToString());
             if (@event.State == KeeperState.Disconnected)
             {
                 if (_isLogout) return;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -17,6 +18,7 @@ namespace Thrift.Server
     {
         private static Dictionary<TServer, RegeditConfig> _services = new Dictionary<TServer, RegeditConfig>();
         private const int _defaultDelayedTime = 20000; //默认延时关闭时间
+
 
         public static void Start()
         {
@@ -50,14 +52,13 @@ namespace Thrift.Server
 
                         TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
 
-                        TServer server = new TThreadPoolServer(new BaseProcessor(processor), serverTransport,
+                        TServer server = new TThreadPoolServer(new BaseProcessor(processor, service), serverTransport,
                             new TTransportFactory(),
                             new TTransportFactory(),
                             new TBinaryProtocol.Factory(),
                             new TBinaryProtocol.Factory(), service.MinThreadPoolThreads, service.MaxThreadPoolThreads, (x) =>
                             {
                                 ThriftLog.Info("log:" + x);
-
                             });
 
                         RegeditConfig regiditConfig = null;
