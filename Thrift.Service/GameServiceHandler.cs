@@ -10,59 +10,36 @@ namespace Thrift.Service
 {
     public class GameServiceHandler : GameThriftService.Iface
     {
-        private IGameService gameService = new Thrift.Test.GameService();
 
-        public void Ping()
-        { }
+        private GameService2 gameService = new Thrift.Test.GameService2();
 
-        public List<int> aa()
+        public Result_Thrift_Test_Game get1()
         {
-            return default(List<int>);
-        }
-        public bool bb()
-        {
-            return default(bool);
-        }
-        public int cc()
-        {
-            return default(int);
+            var data = gameService.get1();
+
+            Result_Thrift_Test_Game dd;
+
+
+            if (data.Successed)
+                return new Result_Thrift_Test_Game() { Successed = true,  Data = data.Data.MapTo<Thrift_Test_Game>() };
+            else
+                return new Result_Thrift_Test_Game() { Successed = false, Data = null };
         }
 
-        public string ss()
+        public Thrift_Test_Game2 get2()
         {
-            return default(string);
-        }
+            var data = gameService.get2();
 
-        public Thrift_Test_Entity_GameInfo Get(int gameId)
-        {
+            Thrift_Test_Game2 gg;
 
-            var gameInfo = gameService.Get(gameId);
-
-
-            if (gameInfo == null)
-                return new Thrift_Test_Entity_GameInfo() { ThriftSuccessed = false, ThriftMessage = "为空" };
-
-            return gameInfo.MapTo<Thrift_Test_Entity_GameInfo>();
-        }
-
-        public List<Thrift_Test_Entity_GameInfo> GetALL()
-        {
-            List<Thrift_Test_Entity_GameInfo> result = new List<Thrift_Test_Entity_GameInfo>();
-
-
-            var list = gameService.GetALL();
-            if (list == null) return result;
-
-            //  return list.MapTo<List<Thrift_BLL_Entity_GameInfo>>();
-
-            result.AddRange(list.Select(q => new Thrift_Test_Entity_GameInfo
+            if (data != null)
             {
-                GameID = q.GameID,
-                GameName = q.GameName
-            }));
-
-
-            return result;
+                var result = data.MapTo<Thrift_Test_Game2>();
+                result.Successed = true;
+                return result;
+            }
+            else
+                return new Thrift_Test_Game2() { Successed = false };
         }
     }
 }

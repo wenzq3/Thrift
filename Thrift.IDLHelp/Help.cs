@@ -11,13 +11,31 @@ using static Thrift.IDLHelp.IDLCreate2;
 
 namespace Thrift.IDLHelp
 {
-    public class ThriftBase
+    [Serializable]
+    public class Result<T>
     {
-        public bool ThriftSuccessed { get; set; }
-        public int ThriftStatusCode { get; set; }
-        public string ThriftMessage { get; set; }
-    }
+        /// <summary>
+        /// 操作成功时附加数据
+        /// </summary>
+        public T Data { get; set; }
 
+        /// <summary>
+        /// 操作是否成功
+        /// </summary>
+        public bool Successed { get; set; }
+
+        /// <summary>
+        /// 操作失败或异常返回消息
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 状态码：0：表示操作成功
+        /// </summary>
+        public int StatusCode { get; set; }
+
+    }
+    
     public class Help
     {
         private static string RunCmd(string cmd)
@@ -56,8 +74,8 @@ namespace Thrift.IDLHelp
         /// <returns></returns>
         public string Create(string filePath, Type type, string nSpace = "", string serviceName = "")
         {
-            try
-            {
+            //try
+            //{
                 //var create = new IDLCreate();
                 //var idlcode = create.Create(typeof(Thrift.Test.ITestService), "abc.ee");
                 List<FunInfo> funs;
@@ -110,11 +128,11 @@ namespace Thrift.IDLHelp
                 Console.WriteLine();
 
                 return "生成成功：" + Path.Combine(filePath, guid, "Out");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("生成错误：" + ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new Exception("生成错误：" + ex.Message);
+            //}
         }
     }
 }

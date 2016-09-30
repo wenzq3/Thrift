@@ -59,15 +59,15 @@ namespace Thrift.IDLHelp
                 serviceName = type.Name + "Thrift";
 
 
-            foreach (var itemType in types)
-            {
-                if (isSystemType(itemType.ClassName))
-                    continue;
+            //  foreach (var itemType in types)
+            //  {
+            //      if (isSystemType(itemType.ClassName))
+            //          continue;
 
-                Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
+            //      Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
 
-                GetModelName(t.FullName, t.Name);
-            }
+            ////      GetModelName(t.FullName, t.Name);
+            //  }
 
             System.Text.StringBuilder str = new StringBuilder();
 
@@ -82,6 +82,29 @@ namespace Thrift.IDLHelp
             {
                 if (isSystemType(itemType.ClassName))
                     continue;
+
+                if (itemType.ClassName.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
+                {
+                    var className = itemType.ClassName.Replace("Thrift.IDLHelp.Result`1[","");
+
+             //       string vt = GetVoType(className);
+                 string thriftType = GetThriftType(className);
+                    string resultClassName = "Result_" + thriftType;
+
+                    str.AppendLine($"struct {resultClassName}");
+                    str.AppendLine("{");
+                    int i = 1;
+                    str.AppendLine($"{i++}: optional i32 StatusCode");
+                    str.AppendLine($"{i++}: optional string  Message");
+                    str.AppendLine($"{i++}: optional bool Successed");
+                    str.AppendLine($"{i++}: optional {thriftType} Data");
+
+                    str.AppendLine("}");
+                    str.AppendLine();
+
+                    continue;
+                }
+
 
                 Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
 
@@ -147,7 +170,7 @@ namespace Thrift.IDLHelp
                 fs.Close();
             }
 
-             Console.WriteLine(str.ToString());
+            Console.WriteLine(str.ToString());
 
             return Tuple.Create(Namespace, serviceName, str.ToString());
         }
@@ -214,30 +237,29 @@ namespace Thrift.IDLHelp
                     return "list<double>";
             }
 
-            if (type.IndexOf("System.Collections.Generic.List`1") == 0)
+            if (type.IndexOf("System.Collections.Generic.List`1[") == 0)
             {
                 string p = type.Substring("System.Collections.Generic.List`1[".Length, type.Length - "System.Collections.Generic.List`1[".Length - 1);
                 return $"list<{GetThriftType(p)}>";
             }
 
-            if (type.IndexOf("System.Collections.Generic.Dictionary`2") == 0)
+            if (type.IndexOf("System.Collections.Generic.Dictionary`2[") == 0)
             {
                 string[] p = type.Substring("System.Collections.Generic.Dictionary`2[".Length, type.Length - "System.Collections.Generic.Dictionary`2[".Length - 1).Split(',');
                 return $"map<{GetThriftType(p[0])},{GetThriftType(p[1])}>";
             }
 
-            if (type.IndexOf("System.Collections.Generic.ISet`1") == 0)
+            if (type.IndexOf("System.Collections.Generic.ISet`1[") == 0)
             {
                 string p = type.Substring("System.Collections.Generic.ISet`1[".Length, type.Length - "System.Collections.Generic.ISet`1[".Length - 1);
                 return $"set<{GetThriftType(p)}>";
             }
 
-            if (type.IndexOf("System.Threading.Tasks.Task`1") == 0)
+            if (type.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
             {
-                string p = type.Substring("System.Threading.Tasks.Task`1[".Length, type.Length - "System.Threading.Tasks.Task`1[".Length - 1);
-                return GetThriftType(p);
+                string p = type.Substring("Thrift.IDLHelp.Result`1[".Length, type.Length - "Thrift.IDLHelp.Result`1[".Length - 1);
+                return "Result_" +GetThriftType(p);
             }
-
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
 
@@ -269,29 +291,14 @@ namespace Thrift.IDLHelp
                     return true;
             }
 
-            if (type.IndexOf("System.Collections.Generic.List`1") == 0)
-            {
-                string p = type.Substring("System.Collections.Generic.List`1[".Length, type.Length - "System.Collections.Generic.List`1[".Length - 1);
-                return true;
-            }
+            if (type.IndexOf("System.Collections.Generic.List`1[") == 0)
+          return true;
 
-            if (type.IndexOf("System.Collections.Generic.Dictionary`2") == 0)
-            {
-                string[] p = type.Substring("System.Collections.Generic.Dictionary`2[".Length, type.Length - "System.Collections.Generic.Dictionary`2[".Length - 1).Split(',');
-                return true;
-            }
+            if (type.IndexOf("System.Collections.Generic.Dictionary`2[") == 0)
+   return true;
 
-            if (type.IndexOf("System.Collections.Generic.ISet`1") == 0)
-            {
-                string p = type.Substring("System.Collections.Generic.ISet`1[".Length, type.Length - "System.Collections.Generic.ISet`1[".Length - 1);
-                return true;
-            }
-
-            if (type.IndexOf("System.Threading.Tasks.Task`1") == 0)
-            {
-                string p = type.Substring("System.Threading.Tasks.Task`1[".Length, type.Length - "System.Threading.Tasks.Task`1[".Length - 1);
-                return CanReturnNull(p);
-            }
+            if (type.IndexOf("System.Collections.Generic.ISet`1[") == 0)
+        return true;
 
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
@@ -304,7 +311,7 @@ namespace Thrift.IDLHelp
             switch (type)
             {
                 case "System.Void":
-                  case "System.Type":
+                case "System.Type":
                 case "System.String":
                 case "System.Int16":
                 case "System.Int32":
@@ -373,16 +380,31 @@ namespace Thrift.IDLHelp
                 return;
             }
 
-            if (className.IndexOf("System.Threading.Tasks.Task`1[") == 0)
+            if (className.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
             {
-                className = className.Remove(0, "System.Threading.Tasks.Task`1[".Length);
+                className = className.Remove(0, "Thrift.IDLHelp.Result`1[".Length);
                 className = className.Remove(className.Length - 1, 1);
+
+                string resultName = className;
+                if (resultName.IndexOf("[") == 0)
+                              resultName = resultName.Remove(0, 1);
+
+                if (resultName.IndexOf(",") >= 0)
+                               resultName = resultName.Substring(0, resultName.IndexOf(","));
+
+                if (resultName.IndexOf("]") >= 0)
+                    resultName = resultName.Substring(0, resultName.IndexOf("]"));
+
+                string resultClassName = "Thrift.IDLHelp.Result`1[" + resultName;
+
+                if (!types.Exists(x => x.ClassName == resultClassName))
+                    types.Add(new TypeInfo() { ClassName = resultClassName, AssemblyName = "", IsEnum = false });
 
                 AddType(types, className, "mscorlib", isEnum);
                 return;
             }
 
-            if(className.Contains("System.Object"))
+            if (className.Contains("System.Object"))
                 throw new Exception("生成错误，目前不支持 System.Object类型！");
 
             if (className.Contains("System.Tuple"))
@@ -410,6 +432,19 @@ namespace Thrift.IDLHelp
                 string asName = p.PropertyType.Assembly.FullName.Substring(0, p.PropertyType.Assembly.FullName.IndexOf(","));
                 AddType(types, p.PropertyType.FullName, asName, p.PropertyType.BaseType == typeof(System.Enum));
             }
+        }
+
+        private string GetVoType(string className)
+        {
+            if (className.IndexOf(",") > 0)
+            {
+                var cn = className.Substring(0, className.IndexOf(","));
+                var an = className.Substring(className.IndexOf(",") + 2, className.IndexOf(",", className.IndexOf(",") + 1) - className.IndexOf(",") - 2);
+
+                className = cn;
+                //      assemblyName = an;
+            }
+            return className;
         }
 
         #endregion
