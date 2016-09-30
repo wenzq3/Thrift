@@ -49,17 +49,6 @@ namespace Thrift.ClientWin
                 {
                     using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
                     {
-                        var vv = svc.Client.Get(1);
-                        var vv2 = svc.Client.GetALL();
-
-                        var aa = svc.Client.aa();
-
-                        var bb = svc.Client.bb();
-
-                        var cc = svc.Client.cc();
-
-
-                        var ss = svc.Client.ss();
                         //   Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
                         //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
 
@@ -135,8 +124,7 @@ namespace Thrift.ClientWin
                         {
                             if (svc == null)
                                 Console.WriteLine("svc is null");
-                            svc.Client.Get(1);
-                            svc.Client.GetALL();
+
                             System.Threading.Thread.Sleep(10);
 
                             //      Console.WriteLine("true");
