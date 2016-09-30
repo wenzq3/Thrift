@@ -9,6 +9,27 @@ namespace Thrift.Test
 {
     public class GameService : IGameService
     {
+
+        public string ss()
+        {
+            return null;
+        }
+
+        public List<int> aa()
+        {
+            return null;
+        }
+
+        public bool bb()
+        {
+            return false;
+        }
+        public int cc()
+        {
+            return 0;
+        }
+
+
         public void Ping()
         { }
 
@@ -17,15 +38,12 @@ namespace Thrift.Test
             return new GameInfo() { GameID = gameId, GameName = "双扣" };
         }
 
-        public async Task<List<GameInfo>> GetALL()
+        public List<GameInfo> GetALL()
         {
-            return await Task.Run<List<GameInfo>>(() =>
-            {
                 return new List<Entity.GameInfo>() {
                     new GameInfo() { GameID = 11, GameName = "双扣" } ,
                 new GameInfo() { GameID = 22, GameName = "斗地主" }
                 };
-            });
 
         }
     }

@@ -53,6 +53,12 @@
     <Compile Include="IGameService.cs" />
     <Compile Include="GameService.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Thrift.IDLHelp\Thrift.IDLHelp.csproj">
+      <Project>{19C070EE-5E55-41A4-BFF2-B08F1B87257A}</Project>
+      <Name>Thrift.IDLHelp</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

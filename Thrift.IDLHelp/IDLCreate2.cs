@@ -19,10 +19,10 @@ namespace Thrift.IDLHelp
         /// <param name="Namespace">IDL命名空间</param>
         /// <param name="serviceName">IDL服务名</param>
         /// <param name="filePath"></param>
-        public Tuple<string, string, string> Create(Type type, string Namespace = "", string serviceName = "", string filePath = "")
+        public Tuple<string, string, string> Create(Type type, out List<FunInfo> funs, string Namespace = "", string serviceName = "", string filePath = "")
         {
             List<TypeInfo> types = new List<TypeInfo>(); //实体类型集合
-            List<FunInfo> funs = new List<FunInfo>(); //方法集合
+            funs = new List<FunInfo>(); //方法集合
 
             foreach (MethodInfo m in type.GetMethods())
             {
@@ -119,6 +119,7 @@ namespace Thrift.IDLHelp
 
             foreach (FunInfo f in funs)
             {
+                f.CanReturnNull = CanReturnNull(f.ReturnType);
                 str.Append(GetThriftType(f.ReturnType) + " ");
                 str.Append(f.FunName + "(");
 
@@ -146,15 +147,16 @@ namespace Thrift.IDLHelp
                 fs.Close();
             }
 
-           // Console.WriteLine(str.ToString());
+             Console.WriteLine(str.ToString());
 
             return Tuple.Create(Namespace, serviceName, str.ToString());
         }
 
         #region private
 
-        private class FunInfo
+        public class FunInfo
         {
+            public bool CanReturnNull { get; set; }
             public string ReturnType { get; set; }
             public string FunName { get; set; }
 
@@ -242,49 +244,82 @@ namespace Thrift.IDLHelp
             return type.Replace(".", "_");
         }
 
+        private bool CanReturnNull(string type)
+        {
+            switch (type)
+            {
+                case "System.Void":
+                case "System.Int16":
+                case "System.Int32":
+                case "System.Int64":
+                case "System.SByte":
+                case "System.Boolean":
+                case "System.Double":
+                    return false;
+
+                case "System.Byte[]":
+                case "System.String":
+                case "System.String[]":
+                case "System.Int16[]":
+                case "System.Int32[]":
+                case "System.Int64[]":
+                case "System.SByte[]":
+                case "System.Boolean[]":
+                case "System.Double[]":
+                    return true;
+            }
+
+            if (type.IndexOf("System.Collections.Generic.List`1") == 0)
+            {
+                string p = type.Substring("System.Collections.Generic.List`1[".Length, type.Length - "System.Collections.Generic.List`1[".Length - 1);
+                return true;
+            }
+
+            if (type.IndexOf("System.Collections.Generic.Dictionary`2") == 0)
+            {
+                string[] p = type.Substring("System.Collections.Generic.Dictionary`2[".Length, type.Length - "System.Collections.Generic.Dictionary`2[".Length - 1).Split(',');
+                return true;
+            }
+
+            if (type.IndexOf("System.Collections.Generic.ISet`1") == 0)
+            {
+                string p = type.Substring("System.Collections.Generic.ISet`1[".Length, type.Length - "System.Collections.Generic.ISet`1[".Length - 1);
+                return true;
+            }
+
+            if (type.IndexOf("System.Threading.Tasks.Task`1") == 0)
+            {
+                string p = type.Substring("System.Threading.Tasks.Task`1[".Length, type.Length - "System.Threading.Tasks.Task`1[".Length - 1);
+                return CanReturnNull(p);
+            }
+
+            if (type.Contains("System.Tuple"))
+                throw new Exception("生成错误，目前不支持System.Tuple 类型！");
+
+            return true;
+        }
+
         private bool isSystemType(string type)
         {
             switch (type)
             {
                 case "System.Void":
-                    return true;
-                case "System.Type":
-                    return true;
-                case "System.Object":
-                    return true;
+                  case "System.Type":
                 case "System.String":
-                    return true;
                 case "System.Int16":
-                    return true;
                 case "System.Int32":
-                    return true;
                 case "System.Int64":
-                    return true;
                 case "System.SByte":
-                    return true;
                 case "System.Boolean":
-                    return true;
                 case "System.Double":
-                    return true;
                 case "System.Byte[]":
-                    return true;
-
                 case "System.Type[]":
-                    return true;
-                case "System.Object[]":
-                    return true;
                 case "System.String[]":
-                    return true;
                 case "System.Int16[]":
-                    return true;
                 case "System.Int32[]":
-                    return true;
                 case "System.Int64[]":
-                    return true;
                 case "System.SByte[]":
-                    return true;
                 case "System.Boolean[]":
-                    return true;
                 case "System.Double[]":
                     return true;
             }
@@ -347,8 +382,11 @@ namespace Thrift.IDLHelp
                 return;
             }
 
+            if(className.Contains("System.Object"))
+                throw new Exception("生成错误，目前不支持 System.Object类型！");
+
             if (className.Contains("System.Tuple"))
-                throw new Exception("生成错误，目前不支持System.Tuple 类型！");
+                throw new Exception("生成错误，目前不支持 System.Tuple 类型！");
 
             if (className.IndexOf(",") > 0)
             {

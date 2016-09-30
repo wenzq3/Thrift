@@ -10,20 +10,56 @@ using Thrift.Client;
 using Thrift.Protocol;
 using Thrift.Transport;
 using System.Net;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Thrift.ClientWin
 {
     class Program
     {
+
         static void Main(string[] args)
         {
+            string filePath = @"F:\ThriftTest\Thrift.ClientWin\11.cs";
+
+            FileStream fs = new FileStream(filePath, FileMode.Open);//打开文件
+            StreamReader tr = new StreamReader(fs, Encoding.Default);
+
+            string str = tr.ReadToEnd();
+            tr.Close();
+            fs.Close();
+            Console.WriteLine(str);
+
+
+            Regex regex = new Regex("throw new TApplicationException\\(TApplicationException.ExceptionType.MissingResult,.*unknown result\"\\);", RegexOptions.IgnoreCase);
+            var newSource = regex.Replace(str, "return null;");
+
+
+
+            fs = new FileStream(filePath, FileMode.Create);//创建文件，存在则覆盖
+            StreamWriter sw = new StreamWriter(fs);//写入
+
+            sw.Write(newSource);
+            sw.Close();
+            fs.Close();
+
             while (true)
             {
                 try
                 {
                     using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
                     {
-                        svc.Client.Get(1);
+                        var vv = svc.Client.Get(1);
+                        var vv2 = svc.Client.GetALL();
+
+                        var aa = svc.Client.aa();
+
+                        var bb = svc.Client.bb();
+
+                        var cc = svc.Client.cc();
+
+
+                        var ss = svc.Client.ss();
                         //   Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
                         //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
 
