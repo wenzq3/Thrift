@@ -83,27 +83,27 @@ namespace Thrift.IDLHelp
                 if (isSystemType(itemType.ClassName))
                     continue;
 
-                if (itemType.ClassName.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
-                {
-                    var className = itemType.ClassName.Replace("Thrift.IDLHelp.Result`1[","");
+                //   if (itemType.ClassName.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
+                //   {
+                //       var className = itemType.ClassName.Replace("Thrift.IDLHelp.Result`1[","");
 
-             //       string vt = GetVoType(className);
-                 string thriftType = GetThriftType(className);
-                    string resultClassName = "Result_" + thriftType;
+                ////       string vt = GetVoType(className);
+                //    string thriftType = GetThriftType(className);
+                //       string resultClassName = "Result_" + thriftType;
 
-                    str.AppendLine($"struct {resultClassName}");
-                    str.AppendLine("{");
-                    int i = 1;
-                    str.AppendLine($"{i++}: optional i32 StatusCode");
-                    str.AppendLine($"{i++}: optional string  Message");
-                    str.AppendLine($"{i++}: optional bool Successed");
-                    str.AppendLine($"{i++}: optional {thriftType} Data");
+                //       str.AppendLine($"struct {resultClassName}");
+                //       str.AppendLine("{");
+                //       int i = 1;
+                //       str.AppendLine($"{i++}: optional i32 StatusCode");
+                //       str.AppendLine($"{i++}: optional string  Message");
+                //       str.AppendLine($"{i++}: optional bool Successed");
+                //       str.AppendLine($"{i++}: optional {thriftType} Data");
 
-                    str.AppendLine("}");
-                    str.AppendLine();
+                //       str.AppendLine("}");
+                //       str.AppendLine();
 
-                    continue;
-                }
+                //       continue;
+                //   }
 
 
                 Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
@@ -255,11 +255,11 @@ namespace Thrift.IDLHelp
                 return $"set<{GetThriftType(p)}>";
             }
 
-            if (type.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
-            {
-                string p = type.Substring("Thrift.IDLHelp.Result`1[".Length, type.Length - "Thrift.IDLHelp.Result`1[".Length - 1);
-                return "Result_" +GetThriftType(p);
-            }
+            //if (type.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
+            //{
+            //    string p = type.Substring("Thrift.IDLHelp.Result`1[".Length, type.Length - "Thrift.IDLHelp.Result`1[".Length - 1);
+            //    return "Result_" +GetThriftType(p);
+            //}
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
 
@@ -292,13 +292,13 @@ namespace Thrift.IDLHelp
             }
 
             if (type.IndexOf("System.Collections.Generic.List`1[") == 0)
-          return true;
+                return true;
 
             if (type.IndexOf("System.Collections.Generic.Dictionary`2[") == 0)
-   return true;
+                return true;
 
             if (type.IndexOf("System.Collections.Generic.ISet`1[") == 0)
-        return true;
+                return true;
 
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
@@ -380,29 +380,29 @@ namespace Thrift.IDLHelp
                 return;
             }
 
-            if (className.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
-            {
-                className = className.Remove(0, "Thrift.IDLHelp.Result`1[".Length);
-                className = className.Remove(className.Length - 1, 1);
+            //if (className.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
+            //{
+            //    className = className.Remove(0, "Thrift.IDLHelp.Result`1[".Length);
+            //    className = className.Remove(className.Length - 1, 1);
 
-                string resultName = className;
-                if (resultName.IndexOf("[") == 0)
-                              resultName = resultName.Remove(0, 1);
+            //    string resultName = className;
+            //    if (resultName.IndexOf("[") == 0)
+            //                  resultName = resultName.Remove(0, 1);
 
-                if (resultName.IndexOf(",") >= 0)
-                               resultName = resultName.Substring(0, resultName.IndexOf(","));
+            //    if (resultName.IndexOf(",") >= 0)
+            //                   resultName = resultName.Substring(0, resultName.IndexOf(","));
 
-                if (resultName.IndexOf("]") >= 0)
-                    resultName = resultName.Substring(0, resultName.IndexOf("]"));
+            //    if (resultName.IndexOf("]") >= 0)
+            //        resultName = resultName.Substring(0, resultName.IndexOf("]"));
 
-                string resultClassName = "Thrift.IDLHelp.Result`1[" + resultName;
+            //    string resultClassName = "Thrift.IDLHelp.Result`1[" + resultName;
 
-                if (!types.Exists(x => x.ClassName == resultClassName))
-                    types.Add(new TypeInfo() { ClassName = resultClassName, AssemblyName = "", IsEnum = false });
+            //    if (!types.Exists(x => x.ClassName == resultClassName))
+            //        types.Add(new TypeInfo() { ClassName = resultClassName, AssemblyName = "", IsEnum = false });
 
-                AddType(types, className, "mscorlib", isEnum);
-                return;
-            }
+            //    AddType(types, className, "mscorlib", isEnum);
+            //    return;
+            //}
 
             if (className.Contains("System.Object"))
                 throw new Exception("生成错误，目前不支持 System.Object类型！");

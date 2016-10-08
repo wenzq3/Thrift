@@ -32,7 +32,7 @@ namespace Thrift.Server
             var cache = System.Web.HttpRuntime.Cache;
             if (cache["IPLimitConfig"] == null)
             {
-                string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigurationManager.AppSettings["IpLimitPath"]);
+                string configFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigurationManager.AppSettings["ThriftIpLimitPath"]);
                 var dep = new CacheDependency(configFilePath, DateTime.Now);
 
                 var instance = GetConfig_Ranges(configFilePath);

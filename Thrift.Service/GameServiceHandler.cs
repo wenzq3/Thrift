@@ -13,19 +13,6 @@ namespace Thrift.Service
 
         private GameService2 gameService = new Thrift.Test.GameService2();
 
-        public Result_Thrift_Test_Game get1()
-        {
-            var data = gameService.get1();
-
-            Result_Thrift_Test_Game dd;
-
-
-            if (data.Successed)
-                return new Result_Thrift_Test_Game() { Successed = true,  Data = data.Data.MapTo<Thrift_Test_Game>() };
-            else
-                return new Result_Thrift_Test_Game() { Successed = false, Data = null };
-        }
-
         public Thrift_Test_Game2 get2()
         {
             var data = gameService.get2();

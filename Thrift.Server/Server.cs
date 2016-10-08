@@ -19,7 +19,6 @@ namespace Thrift.Server
         private static Dictionary<TServer, RegeditConfig> _services = new Dictionary<TServer, RegeditConfig>();
         private const int _defaultDelayedTime = 20000; //默认延时关闭时间
 
-
         public static void Start()
         {
             var _configPath = ConfigurationManager.AppSettings["ThriftServerConfigPath"];

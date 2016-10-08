@@ -20,29 +20,6 @@ namespace Thrift.ClientWin
 
         static void Main(string[] args)
         {
-            string filePath = @"F:\ThriftTest\Thrift.ClientWin\11.cs";
-
-            FileStream fs = new FileStream(filePath, FileMode.Open);//打开文件
-            StreamReader tr = new StreamReader(fs, Encoding.Default);
-
-            string str = tr.ReadToEnd();
-            tr.Close();
-            fs.Close();
-            Console.WriteLine(str);
-
-
-            Regex regex = new Regex("throw new TApplicationException\\(TApplicationException.ExceptionType.MissingResult,.*unknown result\"\\);", RegexOptions.IgnoreCase);
-            var newSource = regex.Replace(str, "return null;");
-
-
-
-            fs = new FileStream(filePath, FileMode.Create);//创建文件，存在则覆盖
-            StreamWriter sw = new StreamWriter(fs);//写入
-
-            sw.Write(newSource);
-            sw.Close();
-            fs.Close();
-
             while (true)
             {
                 try

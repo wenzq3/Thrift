@@ -38,16 +38,16 @@ namespace Thrift.Test
 
     public interface IGameService2
     {
-        Result<Game> get1();
+     //   Result<Game> get1();
         Game2 get2();
     }
 
     public class GameService2 : IGameService2
     {
-        public Result<Game> get1()
-        {
-            return null;
-        }
+     //   public Result<Game> get1()
+        //{
+        //    return null;
+        //}
 
         public Game2 get2()
         {
