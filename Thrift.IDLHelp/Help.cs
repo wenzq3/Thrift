@@ -11,31 +11,7 @@ using static Thrift.IDLHelp.IDLCreate2;
 
 namespace Thrift.IDLHelp
 {
-    [Serializable]
-    public class Result<T>
-    {
-        /// <summary>
-        /// 操作成功时附加数据
-        /// </summary>
-        public T Data { get; set; }
 
-        /// <summary>
-        /// 操作是否成功
-        /// </summary>
-        public bool Successed { get; set; }
-
-        /// <summary>
-        /// 操作失败或异常返回消息
-        /// </summary>
-        public string Message { get; set; }
-
-        /// <summary>
-        /// 状态码：0：表示操作成功
-        /// </summary>
-        public int StatusCode { get; set; }
-
-    }
-    
     public class Help
     {
         private static string RunCmd(string cmd)
@@ -71,63 +47,66 @@ namespace Thrift.IDLHelp
         /// <param name="type">服务接口类型</param>
         /// <param name="nSpace">自定义命名空间</param>
         /// <param name="serviceName">自定义服务名</param>
+        /// <param name="dllName">dll名称</param>
         /// <returns></returns>
-        public string Create(string filePath, Type type, string nSpace = "", string serviceName = "")
+        public string Create(string filePath, Type type, string nSpace = "", string serviceName = "", string dllName = "")
         {
             //try
             //{
-                //var create = new IDLCreate();
-                //var idlcode = create.Create(typeof(Thrift.Test.ITestService), "abc.ee");
-                List<FunInfo> funs;
-                var create2 = new IDLCreate2();
-                var idlcode = create2.Create(type, out funs, nSpace, serviceName);
+            //var create = new IDLCreate();
+            //var idlcode = create.Create(typeof(Thrift.Test.ITestService), "abc.ee");
+            List<FunInfo> funs;
+            var create2 = new IDLCreate2();
+            var idlcode = create2.Create(type, out funs, nSpace, serviceName);
 
-                var cmd = new ThriftCmd();
+            var cmd = new ThriftCmd();
 
-                Directory.CreateDirectory(filePath);
+            Directory.CreateDirectory(filePath);
 
-                var guid = cmd.Execute(Language.CSharp, filePath, idlcode.Item3);
+            var guid = cmd.Execute(Language.CSharp, filePath, idlcode.Item3);
 
-                string idlpath = idlcode.Item1.Replace(".", "\\");
+            string idlpath = idlcode.Item1.Replace(".", "\\");
 
-                string codePath = Path.Combine(filePath, guid, "Code", idlpath) + @"\*.cs";
+            string codePath = Path.Combine(filePath, guid, "Code", idlpath) + @"\*.cs";
 
-                //替换thrift生成的代码 
-                foreach (var code in Directory.GetFiles(Path.Combine(filePath, guid, "Code", idlpath)))
+            //替换thrift生成的代码 
+            foreach (var code in Directory.GetFiles(Path.Combine(filePath, guid, "Code", idlpath)))
+            {
+                FileStream fs = new FileStream(code, FileMode.Open);//打开文件
+                StreamReader tr = new StreamReader(fs, Encoding.Default);
+
+                string str = tr.ReadToEnd();
+                tr.Close();
+                fs.Close();
+
+                foreach (var fun in funs)
                 {
-                    FileStream fs = new FileStream(code, FileMode.Open);//打开文件
-                    StreamReader tr = new StreamReader(fs, Encoding.Default);
-
-                    string str = tr.ReadToEnd();
-                    tr.Close();
-                    fs.Close();
-
-                    foreach (var fun in funs)
+                    if (fun.CanReturnNull)
                     {
-                        if (fun.CanReturnNull)
-                        {
-                            Regex regex = new Regex("throw new TApplicationException\\(TApplicationException.ExceptionType.MissingResult, \"" + fun.FunName + " failed: unknown result\"\\);", RegexOptions.IgnoreCase);
-                            str = regex.Replace(str, "return null;");
-                        }
+                        Regex regex = new Regex("throw new TApplicationException\\(TApplicationException.ExceptionType.MissingResult, \"" + fun.FunName + " failed: unknown result\"\\);", RegexOptions.IgnoreCase);
+                        str = regex.Replace(str, "return null;");
                     }
-
-                    fs = new FileStream(code, FileMode.Create);//创建文件，存在则覆盖
-                    StreamWriter sw = new StreamWriter(fs);//写入
-
-                    sw.Write(str);
-                    sw.Close();
-                    fs.Close();
                 }
 
-                string thriftdll = ThriftDLL.ResolvePath(Path.Combine(filePath, guid));
-                string cscPath = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe";
-                string dllname = Path.Combine(filePath, guid, "Out", idlcode.Item2 + ".dll");
-                string dll = $"{cscPath} /target:library /out:{dllname} /reference:{thriftdll} {codePath}";
+                fs = new FileStream(code, FileMode.Create);//创建文件，存在则覆盖
+                StreamWriter sw = new StreamWriter(fs);//写入
 
-                Console.WriteLine(RunCmd(dll));
-                Console.WriteLine();
+                sw.Write(str);
+                sw.Close();
+                fs.Close();
+            }
 
-                return "生成成功：" + Path.Combine(filePath, guid, "Out");
+            if (string.IsNullOrEmpty(dllName))
+                dllName = idlcode.Item1 + ".dll";
+            string thriftdll = ThriftDLL.ResolvePath(Path.Combine(filePath, guid));
+            string cscPath = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe";
+            string dllname = Path.Combine(filePath, guid, "Out", dllName);
+            string dll = $"{cscPath} /target:library /out:{dllname} /reference:{thriftdll} {codePath}";
+
+            Console.WriteLine(RunCmd(dll));
+            Console.WriteLine();
+
+            return "生成成功：" + Path.Combine(filePath, guid, "Out");
             //}
             //catch (Exception ex)
             //{

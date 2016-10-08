@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Thrift.Service;
 using Thrift.Test;
-using ThriftTest;
 
 namespace Thrift.ServiceWin
 {
@@ -19,7 +18,7 @@ namespace Thrift.ServiceWin
             ////生成使用代码
             //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
             //Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
-            //Console.WriteLine(help.Create(filePath, typeof(Thrift.Test.IGameService2), "ThriftTest", "GameThriftService"));
+            //Console.WriteLine(help.Create(filePath, typeof(Thrift.Test.IGameService2), "Thrift.Test.Thrift", "ThriftTestThrift"));
             //Console.ReadLine();
 
             //启动服务

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Thrift.Test;
-using ThriftTest;
+using Thrift.Test.Thrift;
 
 namespace Thrift.Service
 {
-    public class GameServiceHandler : GameThriftService.Iface
+    public class GameServiceHandler : ThriftTestThrift.Iface
     {
 
         private GameService2 gameService = new Thrift.Test.GameService2();

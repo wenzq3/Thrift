@@ -41,12 +41,16 @@ namespace Thrift.Server
                     {
                         Assembly assembly = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.HandlerType.Split(',')[1]));
                         object handle = assembly.CreateInstance(service.HandlerType.Split(',')[0], true);
-
+                        
                         if (handle == null)
                             throw new Exception(service.HandlerType + "为空");
 
-                        var processor = (Thrift.TProcessor)Type.GetType($"{service.SpaceName}.{service.ClassName}+Processor,{service.ClassName}", true)
-                       .GetConstructor(new Type[] { Type.GetType( $"{service.SpaceName}.{service.ClassName}+Iface,{service.ClassName}", true) })
+                        string assemblyName = service.SpaceName;
+                        if(!string.IsNullOrEmpty(service.AssemblyName))
+                            assemblyName=service.AssemblyName;
+
+                        var processor = (Thrift.TProcessor)Type.GetType($"{service.SpaceName}.{service.ClassName}+Processor,{assemblyName}", true)
+                       .GetConstructor(new Type[] { Type.GetType( $"{service.SpaceName}.{service.ClassName}+Iface,{assemblyName}", true) })
                           .Invoke(new object[] { handle });
 
                         TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
