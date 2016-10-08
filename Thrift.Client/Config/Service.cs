@@ -36,6 +36,15 @@ namespace Thrift.Client.Config
         }
 
         /// <summary>
+        /// 程序集名称
+        /// </summary>
+        [ConfigurationProperty("assemblyName", IsRequired = false, DefaultValue = "")]
+        public string AssemblyName
+        {
+            get { return (string)this["assemblyName"]; }
+        }
+
+        /// <summary>
         /// 最小连接数
         /// </summary>
         [ConfigurationProperty("minConnectionsNum", IsRequired = false, DefaultValue = 5)]

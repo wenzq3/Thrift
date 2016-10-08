@@ -12,6 +12,7 @@ using Thrift.Transport;
 using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
+using Thrift.Test.Thrift;
 
 namespace Thrift.ClientWin
 {
@@ -24,7 +25,7 @@ namespace Thrift.ClientWin
             {
                 try
                 {
-                    using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+                    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("GameThriftService"))
                     {
                         //   Console.WriteLine("GetALL:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.GetALL()));
                         //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
@@ -96,7 +97,7 @@ namespace Thrift.ClientWin
                     try
                     {
 
-                        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
+                        using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("GameThriftService"))
                         //        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClientSimple("GameThriftService"))
                         {
                             if (svc == null)
