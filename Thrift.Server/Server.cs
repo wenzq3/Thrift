@@ -41,16 +41,16 @@ namespace Thrift.Server
                     {
                         Assembly assembly = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.HandlerType.Split(',')[1]));
                         object handle = assembly.CreateInstance(service.HandlerType.Split(',')[0], true);
-                        
+
                         if (handle == null)
                             throw new Exception(service.HandlerType + "为空");
 
                         string assemblyName = service.SpaceName;
-                        if(!string.IsNullOrEmpty(service.AssemblyName))
-                            assemblyName=service.AssemblyName;
+                        if (!string.IsNullOrEmpty(service.AssemblyName))
+                            assemblyName = service.AssemblyName;
 
                         var processor = (Thrift.TProcessor)Type.GetType($"{service.SpaceName}.{service.ClassName}+Processor,{assemblyName}", true)
-                       .GetConstructor(new Type[] { Type.GetType( $"{service.SpaceName}.{service.ClassName}+Iface,{assemblyName}", true) })
+                       .GetConstructor(new Type[] { Type.GetType($"{service.SpaceName}.{service.ClassName}+Iface,{assemblyName}", true) })
                           .Invoke(new object[] { handle });
 
                         TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
@@ -71,35 +71,6 @@ namespace Thrift.Server
                         ThriftLog.Info($"{service.Name} {service.Port} Starting the TThreadPoolServer...");
                         _services.Add(server, regiditConfig);
                         server.Serve();
-
-                        // Assembly assembly = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.HandlerType.Split(',')[1]));
-                        // object handle = assembly.CreateInstance(service.HandlerType.Split(',')[0], true);
-
-                        // if (handle == null)
-                        //     throw new Exception(service.HandlerType + "为空");
-
-                        // var processor = (Thrift.TProcessor)Type.GetType(service.ProcessType, true)
-                        //.GetConstructor(new Type[] { Type.GetType(service.IfaceType, true) })
-                        //   .Invoke(new object[] { handle });
-
-                        // TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
-
-                        // TServer server = new TThreadPoolServer(new BaseProcessor(processor, service), serverTransport,
-                        //     new TTransportFactory(),
-                        //     new TTransportFactory(),
-                        //     new TBinaryProtocol.Factory(),
-                        //     new TBinaryProtocol.Factory(), service.MinThreadPoolThreads, service.MaxThreadPoolThreads, (x) =>
-                        //     {
-                        //         ThriftLog.Info("log:" + x);
-                        //     });
-
-                        // RegeditConfig regiditConfig = null;
-                        // if (service.ZookeeperConfig != null && service.ZookeeperConfig.Host != "")
-                        //     regiditConfig = ConfigCenter.RegeditServer(service); //zookeeper 注册服务
-
-                        // ThriftLog.Info($"{service.Name} {service.Port} Starting the TThreadPoolServer...");
-                        // _services.Add(server, regiditConfig);
-                        // server.Serve();
                     }
                     catch (Exception ex)
                     {

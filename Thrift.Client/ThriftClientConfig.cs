@@ -139,9 +139,10 @@ namespace Thrift.Client
 
         public void Process(WatchedEvent @event)
         {
-            if (@event.State == KeeperState.Disconnected)
+            ThriftLog.Info("WatchedEvent :" + @event.State.ToString());
+            if (@event.State == KeeperState.Expired)
             {
-                ThriftLog.Info("WatchedEvent :" + @event.State.ToString() + " 重新连接zk");
+                ThriftLog.Info(" 重新连接zk");
                 _zk = null;
                 _config = GetConfig(true);
             }

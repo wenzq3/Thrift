@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZooKeeperNet;
 using Thrift.Server.Config;
+using System.Threading;
 
 namespace Thrift.Server
 {
@@ -16,23 +17,74 @@ namespace Thrift.Server
     public class RegeditConfig : IWatcher
     {
         private Service _service;
-
+        private string _host;
         private ZooKeeper _zk;
         private List<ACL> _zk_Acl;
 
         private bool _isLogout; //是否注销中
 
+        Thread _threadStart;
+
+        private static object lockHelp = new object();
 
         public RegeditConfig(Service service)
         {
             _zk = null;
             _isLogout = false;
             _service = service;
-
-            //  if (string.IsNullOrEmpty(_service.ZookeeperConfig.Digest))
             _zk_Acl = Ids.OPEN_ACL_UNSAFE;
-            //    else
-            //        _zk_Acl = ZookeeperHelp.GetACL(_service.ZookeeperConfig.Digest);
+
+            _host = _service.Host;
+            if (string.IsNullOrEmpty(_host))
+            {
+                _host = GetAddressIP();
+                if (_host == "")
+                    throw new Exception("当前服务IP地址不能为空");
+            }
+            _threadStart = null;
+        }
+
+        public void Logout()
+        {
+            _isLogout = true;
+            if (_zk != null)
+                _zk.Dispose();
+        }
+
+        public void ReStart()
+        {
+            lock (lockHelp)
+            {
+                if (_zk != null)
+                {
+                    _zk = null;
+                    //_zk.Dispose();
+                    System.GC.Collect();
+                }
+                if (_threadStart != null)
+                {
+                    _threadStart.Abort();
+                    _threadStart = null;
+                }
+                Start();
+            }
+        }
+
+        public void Start()
+        {
+            _threadStart = new Thread(() =>
+        {
+            while (true)
+            {
+                if (_isLogout) break;
+
+                if (Regedit())
+                    break;
+
+                System.Threading.Thread.Sleep(_service.ZookeeperConfig.ConnectInterval);
+            }
+        });
+            _threadStart.Start();
         }
 
         private bool Regedit()
@@ -45,53 +97,21 @@ namespace Thrift.Server
                 return false;
             }
 
-            string _host = _service.Host;
-            if (string.IsNullOrEmpty(_host))
-            {
-                _host = GetAddressIP();
-                if (_host == "")
-                    throw new Exception("当前服务IP地址不能为空");
-            }
             var zNode = $"{_service.ZookeeperConfig.NodeParent}/{_host}:{_service.Port}-{_service.Weight}";
 
-            new System.Threading.Thread(() =>
-            {
-                CheckNodeParent();
-                Regedit(zNode);
-            }).Start();
+            if (!CheckNodeParent())
+                return false;
+
+            if (!RegeditNode(zNode, 0))
+                return false;
 
             return true;
-        }
-
-        public void Start()
-        {
-            _zk = null;
-
-            bool isConnZk = Regedit();
-            if (!isConnZk)
-            {
-                new System.Threading.Thread(() =>
-                {
-                    while (!isConnZk)
-                    {
-                        System.Threading.Thread.Sleep(_service.ZookeeperConfig.ConnectInterval);
-                        isConnZk = Regedit();
-                    }
-                }).Start();
-            }
-        }
-
-        public void Logout()
-        {
-            _isLogout = true;
-            if (_zk != null)
-                _zk.Dispose();
         }
 
         /// <summary>
         /// 创建父结点
         /// </summary>
-        private void CheckNodeParent()
+        private bool CheckNodeParent()
         {
             string[] list = _service.ZookeeperConfig.NodeParent.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < list.Count(); i++)
@@ -114,58 +134,58 @@ namespace Thrift.Server
                 catch (Exception ex)
                 {
                     ThriftLog.Error("zk:创建父结点异常:" + ex.Message + ex.StackTrace);
+                    return false;
                 }
             }
+            return true;
         }
 
         /// <summary>
         ///  注册服务直到成功
-        ///  具体RPC服务的注册路径为: /rpc/{namespace}/{service}/{version}, 该路径上的节点都是永久节点
-        ///  RPC服务集群节点的注册路径为: /rpc/{namespace}/{service }/{version}/ip:port:weight, 末尾的节点是临时节点.
+        ///  具体RPC服务的注册路径为: /thrift/{namespace}, 该路径上的节点都是永久节点
+        ///  RPC服务集群节点的注册路径为: /thrift/{namespace}/ip:port:weight, 末尾的节点是临时节点.
         /// </summary>
-        private void Regedit(string zNode)
+        private bool RegeditNode(string zNode, int existsCount)
         {
-            int existsCount = 0; //已经存在次数
-            int errorCount = 0; //错误次数
-
-            bool isRegister = false;
-            while (!isRegister)
+            try
             {
-                if (_isLogout) break;
-
-                try
+                _zk.Create(zNode, null, _zk_Acl, CreateMode.Ephemeral);
+                ThriftLog.Info($"{zNode}节点注册完成 ");
+                return true;
+            }
+            catch (KeeperException.NodeExistsException ex)
+            {
+                ThriftLog.Info($"{zNode}节点已经存在 " + ex.Message);
+                System.Threading.Thread.Sleep(2000);
+                if (existsCount++ > 5)
                 {
-                    _zk.Create(zNode, null, _zk_Acl, CreateMode.Ephemeral);
-                    isRegister = true;
                     ThriftLog.Info($"{zNode}节点注册完成 ");
+                    return true;
                 }
-                catch (KeeperException.NodeExistsException ex)
-                {
-                    existsCount++;
-                    errorCount++;
-                    ThriftLog.Info($"{zNode}节点已经存在 ");
-                }
-                catch (Exception ex)
-                {
-                    errorCount++;
-                    ThriftLog.Info(zNode + ex.Message);
-                }
-
-                System.Threading.Thread.Sleep(10000);
-
-                if (existsCount > 10) break;
-                if (errorCount > 20) break;
+                else
+                    return RegeditNode(zNode, existsCount);
+            }
+            catch (KeeperException.SessionExpiredException ex)
+            {
+                ThriftLog.Info("SessionExpiredException 过期" + ex.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ThriftLog.Info("Regedit:" + ex.StackTrace);
+                return false;
             }
         }
 
-
         public void Process(WatchedEvent @event)
         {
-            if (@event.State == KeeperState.Disconnected)
+            ThriftLog.Info("WatchedEvent :" + @event.State.ToString());
+            //     if (@event.State == KeeperState.Disconnected || @event.State == KeeperState.Expired)
+            if (@event.State == KeeperState.Expired)
             {
                 if (_isLogout) return;
-                ThriftLog.Info("WatchedEvent :" + @event.State.ToString() + " 重新注册zk");
-                Start();
+                ThriftLog.Info(" 重新注册zk");
+                ReStart();
             }
         }
         /// <summary>
