@@ -5,6 +5,8 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Thrift.Protocol;
@@ -52,6 +54,10 @@ namespace Thrift.Server
                         var processor = (Thrift.TProcessor)Type.GetType($"{service.SpaceName}.{service.ClassName}+Processor,{assemblyName}", true)
                        .GetConstructor(new Type[] { Type.GetType($"{service.SpaceName}.{service.ClassName}+Iface,{assemblyName}", true) })
                           .Invoke(new object[] { handle });
+
+
+                        //X509Certificate2 cert = new X509Certificate2("123.pfx", "123");
+                        //TServerTransport serverTransport = new TTLSServerSocket(service.Port, service.ClientTimeout, true, cert, null, null);
 
                         TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
 

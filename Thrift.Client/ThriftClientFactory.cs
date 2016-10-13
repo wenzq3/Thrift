@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Thrift.Protocol;
@@ -44,15 +45,20 @@ namespace Thrift.Client
             int num = new Random().Next(0, listUri.Count);
             string host = listUri[num];
 
-            ThriftLog.Info("创建连接："+config.Host + "--" + host);
+            ThriftLog.Info("创建连接：" + config.Host + "--" + host);
+
+            //   X509Certificate2 cert = new X509Certificate2("123.pfx", "123");
+            // TTransport transport = new TTLSSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout, cert, (o, c, chain, errors) => true, null);
+
             TTransport transport = new TSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout);
+
             TProtocol protocol = new TBinaryProtocol(transport);
 
             string assemblyName = config.SpaceName;
             if (!string.IsNullOrEmpty(config.AssemblyName))
                 assemblyName = config.AssemblyName;
 
-            return Tuple.Create(transport, Type.GetType($"{config.SpaceName}.{config.ClassName}+Client,{assemblyName}" , true)
+            return Tuple.Create(transport, Type.GetType($"{config.SpaceName}.{config.ClassName}+Client,{assemblyName}", true)
            .GetConstructor(new Type[] { typeof(TProtocol) })
             .Invoke(new object[] { protocol }), host);
         }
