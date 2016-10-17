@@ -126,9 +126,9 @@ namespace Thrift.Server
                     if (stat == null)
                     {
                         if (zNode == "/ThriftServer") //thrift服务的根目录
-                            _zk.Create(zNode, null, Ids.OPEN_ACL_UNSAFE, CreateMode.Persistent);
+                            _zk.Create(zNode, new byte[0] { }, Ids.OPEN_ACL_UNSAFE, CreateMode.Persistent);
                         else
-                            _zk.Create(zNode, null, _zk_Acl, CreateMode.Persistent);
+                            _zk.Create(zNode, new byte[0] { }, _zk_Acl, CreateMode.Persistent);
                     }
                 }
                 catch (Exception ex)
@@ -149,7 +149,7 @@ namespace Thrift.Server
         {
             try
             {
-                _zk.Create(zNode, null, _zk_Acl, CreateMode.Ephemeral);
+                _zk.Create(zNode, new byte[0] { }, _zk_Acl, CreateMode.Ephemeral);
                 ThriftLog.Info($"{zNode}节点注册完成 ");
                 return true;
             }
