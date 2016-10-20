@@ -70,6 +70,8 @@ namespace Thrift.Server
                                 ThriftLog.Info("log:" + x);
                             });
 
+                        server.setEventHandler(new ServerEventHandler());
+
                         RegeditConfig regiditConfig = null;
                         if (service.ZookeeperConfig != null && service.ZookeeperConfig.Host != "")
                             regiditConfig = ConfigCenter.RegeditServer(service); //zookeeper 注册服务

@@ -67,9 +67,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="client.p12">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Config\ThriftClient.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

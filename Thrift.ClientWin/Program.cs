@@ -27,7 +27,7 @@ namespace Thrift.ClientWin
                 {
                     using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
                     {
-                           Console.WriteLine("GetALL:" + svc.Client.get2());
+                        Console.WriteLine("GetALL:" + svc.Client.get2());
                         //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
 
                         Console.WriteLine("true");
@@ -40,51 +40,9 @@ namespace Thrift.ClientWin
                 System.Threading.Thread.Sleep(5000);
             }
 
-            int het = 1000;
+            int het = 10;
 
-            //var stopwatch = new Stopwatch();
-            //stopwatch.Start();
-
-            //var countdown = new CountdownEvent(het);
-            //ThreadPool.SetMinThreads(1000, 1000);
-            //ThreadPool.SetMaxThreads(1000, 1000);
-
-            //for (int i = 0; i < het; i++)
-            //{
-
-            //    ThreadPool.QueueUserWorkItem((obj) =>
-            //    {
-
-            //try
-            //{
-            //    System.Threading.Thread.Sleep(10);
-            //    using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClient("GameThriftService"))
-            //    {
-            //        svc.Client.Get(1);
-            //        svc.Client.GetALL();
-            //        //        Console.WriteLine("true");
-            //    }
-            //}
-            //catch { Console.WriteLine("false"); }
-            //finally
-            //{
-            //    countdown.Signal();
-            //}
-
-            //    });
-
-            //}
-
-
-            //while (!countdown.IsSet) ;
-
-            //stopwatch.Stop();
-
-            //Console.WriteLine(stopwatch.ElapsedMilliseconds);
-            //Console.WriteLine("over");
-
-
-
+    
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -97,15 +55,12 @@ namespace Thrift.ClientWin
                     try
                     {
 
-                        using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("GameThriftService"))
-                        //        using (var svc = ThriftClientManager<ThriftTest.GameThriftService.Client>.GetClientSimple("GameThriftService"))
+                        using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
                         {
-                            if (svc == null)
-                                Console.WriteLine("svc is null");
+                            Console.WriteLine("GetALL:" + svc.Client.get2());
+                            //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
 
-                            System.Threading.Thread.Sleep(10);
-
-                            //      Console.WriteLine("true");
+                            Console.WriteLine("true");
                         }
                     }
                     catch (Exception ex) { Console.WriteLine("false:" + ex.StackTrace); }

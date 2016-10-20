@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Thrift.Server;
 using Thrift.Test;
 using Thrift.Test.Thrift;
 
@@ -15,6 +16,7 @@ namespace Thrift.Service
 
         public Thrift_Test_Game2 get2()
         {
+            Console.WriteLine(ServerEventHandler.GetClientIP(System.Threading.Thread.CurrentThread.ManagedThreadId));
             var data = gameService.get2();
 
             Thrift_Test_Game2 gg;

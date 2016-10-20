@@ -67,6 +67,10 @@
       <Project>{19c070ee-5e55-41a4-bff2-b08f1b87257a}</Project>
       <Name>Thrift.IDLHelp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Thrift.Server\Thrift.Server.csproj">
+      <Project>{7614E3BD-4846-456E-B8BC-B9661F5E6553}</Project>
+      <Name>Thrift.Server</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Thrift.Test\Thrift.Test.csproj">
       <Project>{80168ab7-ecb0-4db6-aa02-6e712688ca12}</Project>
       <Name>Thrift.Test</Name>
