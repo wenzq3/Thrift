@@ -171,8 +171,9 @@ namespace Thrift.IDLHelp
             }
 
             ConsoleColor currentForeColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("IDL模板：");
+            Console.WriteLine();
             Console.WriteLine(str.ToString());
             Console.WriteLine();
             Console.ForegroundColor = currentForeColor;

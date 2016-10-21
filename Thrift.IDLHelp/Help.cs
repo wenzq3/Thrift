@@ -112,9 +112,10 @@ namespace Thrift.IDLHelp
 
 
             ConsoleColor currentForeColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ForegroundColor = ConsoleColor.Yellow;
 
-            Console.WriteLine("生成目录：");
+            Console.WriteLine("生成成功：");
+            Console.WriteLine();
             Console.WriteLine(Path.Combine(filePath, guid, "Out"));
             Console.WriteLine();
             Console.ForegroundColor = currentForeColor;

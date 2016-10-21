@@ -15,6 +15,8 @@ namespace Thrift.IDLHelp
 
         public static string ResolvePath(string tempPath, string title, string version)
         {
+            if (string.IsNullOrEmpty(version))
+                version = "1.0.0.0";
             var resource = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.EndsWith(AssemblyInfoContent)).FirstOrDefault();
 
             if (resource == null)
