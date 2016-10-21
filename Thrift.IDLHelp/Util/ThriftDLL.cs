@@ -16,7 +16,7 @@ namespace Thrift.IDLHelp
 
             if (resource == null)
             {
-                throw new Exception("Thrift.dll resource not found!");
+                throw new Exception(thriftDLLFileName+"resource not found!");
             }
             if (!Directory.Exists(tempPath))
             {

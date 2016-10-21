@@ -49,7 +49,7 @@ namespace Thrift.IDLHelp
         /// <param name="serviceName">自定义服务名</param>
         /// <param name="dllName">dll名称</param>
         /// <returns></returns>
-        public void Create(string filePath, Type type, string nSpace = "", string serviceName = "", string dllName = "")
+        public void Create(string filePath, Type type, string nSpace = "", string serviceName = "", string version = "")
         {
             //try
             //{
@@ -96,14 +96,14 @@ namespace Thrift.IDLHelp
                 fs.Close();
             }
 
-            if (string.IsNullOrEmpty(dllName))
-                dllName = idlcode.Item1 + ".dll";
+            string dllName = idlcode.Item1 + ".dll";
             string thriftdll = ThriftDLL.ResolvePath(Path.Combine(filePath, guid));
             string cscPath = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe";
             cscPath = @"F:\ThriftTest\csc.exe";
             cscPath = Csc.ResolvePath(Path.Combine(filePath, guid));
             string dllname = Path.Combine(filePath, guid, "Out", dllName);
-            string dll = $"{cscPath} /target:library /out:{dllname} /reference:{thriftdll} {codePath}";
+            string AssemblyInfoPath = AssemblyInfo.ResolvePath(Path.Combine(filePath, guid), nSpace, version);
+            string dll = $"{cscPath} /target:library /out:{dllname} /reference:{thriftdll} {AssemblyInfoPath} {codePath}";
 
 
             Console.WriteLine(RunCmd(dll));

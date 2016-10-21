@@ -60,6 +60,7 @@
     <Compile Include="Models\FileModel.cs" />
     <Compile Include="Help.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\AssemblyInfo.cs" />
     <Compile Include="Util\Csc.cs" />
     <Compile Include="Util\ThriftCmd.cs" />
     <Compile Include="Util\Formatter.cs" />
@@ -68,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="Resources\AssemblyInfo.ini" />
     <None Include="ThriftKey.snk" />
   </ItemGroup>
   <ItemGroup>
