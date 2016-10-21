@@ -100,6 +100,8 @@ namespace Thrift.IDLHelp
                 dllName = idlcode.Item1 + ".dll";
             string thriftdll = ThriftDLL.ResolvePath(Path.Combine(filePath, guid));
             string cscPath = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe";
+            cscPath = @"F:\ThriftTest\csc.exe";
+            cscPath = Csc.ResolvePath(Path.Combine(filePath, guid));
             string dllname = Path.Combine(filePath, guid, "Out", dllName);
             string dll = $"{cscPath} /target:library /out:{dllname} /reference:{thriftdll} {codePath}";
 

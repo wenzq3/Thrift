@@ -38,7 +38,7 @@ namespace Thrift.IDLHelp
 
             if (!File.Exists(tempExePath))
             {
-                throw new Exception("Couldn't resolve thrift.exe.");
+                throw new Exception("Couldn't resolve "+ thriftExeFileName);
             }
 
             return tempExePath;

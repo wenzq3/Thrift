@@ -1,18 +1,28 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Thrift.IDLHelp
 {
-    internal class ThriftDLL
+    internal class Csc
     {
-        private const string thriftDLLFileName = "Thrift.dll";
+        private const string cscExe = "csc.exe";
+        private const string cscuiDll = "cscui.dll";
 
         public static string ResolvePath(string tempPath)
         {
-            var resource = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.EndsWith(thriftDLLFileName)).FirstOrDefault();
+            ResolvePath(tempPath, cscuiDll);
+            return ResolvePath(tempPath, cscExe);
+        }
+
+        private static string ResolvePath(string tempPath, string fileName)
+        {
+            //cscuidll
+            var resource = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.EndsWith(fileName)).FirstOrDefault();
 
             if (resource == null)
             {
@@ -23,7 +33,7 @@ namespace Thrift.IDLHelp
                 Directory.CreateDirectory(tempPath);
             }
 
-            string tempExePath = Path.Combine(tempPath, thriftDLLFileName);
+            var tempExePath = Path.Combine(tempPath, fileName);
 
             if (!File.Exists(tempExePath))
             {
@@ -38,7 +48,7 @@ namespace Thrift.IDLHelp
 
             if (!File.Exists(tempExePath))
             {
-                throw new Exception("Couldn't resolve "+ thriftDLLFileName);
+                throw new Exception("Couldn't resolve " + fileName);
             }
 
             return tempExePath;
