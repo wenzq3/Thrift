@@ -170,7 +170,12 @@ namespace Thrift.IDLHelp
                 fs.Close();
             }
 
+            ConsoleColor currentForeColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("IDL模板：");
             Console.WriteLine(str.ToString());
+            Console.WriteLine();
+            Console.ForegroundColor = currentForeColor;
 
             return Tuple.Create(Namespace, serviceName, str.ToString());
         }

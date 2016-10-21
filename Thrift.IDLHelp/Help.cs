@@ -49,7 +49,7 @@ namespace Thrift.IDLHelp
         /// <param name="serviceName">自定义服务名</param>
         /// <param name="dllName">dll名称</param>
         /// <returns></returns>
-        public string Create(string filePath, Type type, string nSpace = "", string serviceName = "", string dllName = "")
+        public void Create(string filePath, Type type, string nSpace = "", string serviceName = "", string dllName = "")
         {
             //try
             //{
@@ -103,10 +103,23 @@ namespace Thrift.IDLHelp
             string dllname = Path.Combine(filePath, guid, "Out", dllName);
             string dll = $"{cscPath} /target:library /out:{dllname} /reference:{thriftdll} {codePath}";
 
+
             Console.WriteLine(RunCmd(dll));
             Console.WriteLine();
 
-            return "生成成功：" + Path.Combine(filePath, guid, "Out");
+
+
+            ConsoleColor currentForeColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Blue;
+
+            Console.WriteLine("生成目录：");
+            Console.WriteLine(Path.Combine(filePath, guid, "Out"));
+            Console.WriteLine();
+            Console.ForegroundColor = currentForeColor;
+
+            Console.WriteLine("按任意键继续...");
+            Console.ReadLine();
+            //     return "生成成功：" + Path.Combine(filePath, guid, "Out");
             //}
             //catch (Exception ex)
             //{
