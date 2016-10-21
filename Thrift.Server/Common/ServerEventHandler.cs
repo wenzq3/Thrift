@@ -19,7 +19,17 @@ namespace Thrift.Server
         /// <summary>
         /// 获取客户端IP
         /// </summary>
-        /// <param name="currentThreadId">当前线程Id</param>
+        /// <returns></returns>
+        public static string GetClientIP()
+        {
+            int id = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            return GetClientIP(id);
+        }
+
+        /// <summary>
+        /// 获取客户端IP
+        /// </summary>
+        /// <param name="currentThreadId">当前托管线程的唯一标识符</param>
         /// <returns></returns>
         public static string GetClientIP(int currentThreadId)
         {
@@ -35,6 +45,7 @@ namespace Thrift.Server
             IPEndPoint ip = (IPEndPoint)socket.TcpClient.Client.RemoteEndPoint;
             var id = System.Threading.Thread.CurrentThread.ManagedThreadId;
             _ditIP[id] = ip.Address.ToString();
+
             return null;
         }
 

@@ -16,7 +16,7 @@ namespace Thrift.Service
 
         public Thrift_Test_Game2 get2()
         {
-            Console.WriteLine(ServerEventHandler.GetClientIP(System.Threading.Thread.CurrentThread.ManagedThreadId));
+    //        Console.WriteLine(ServerEventHandler.GetClientIP());
             var data = gameService.get2();
 
             Thrift_Test_Game2 gg;

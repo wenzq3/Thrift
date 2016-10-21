@@ -71,7 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\MyTServerEventHandler.cs" />
+    <Compile Include="Common\ServerEventHandler.cs" />
     <Compile Include="Common\BaseProcessor.cs" />
     <Compile Include="Common\IpLimit.cs" />
     <Compile Include="Common\ZookeeperHelp.cs" />
