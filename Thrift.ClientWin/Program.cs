@@ -39,7 +39,7 @@ namespace Thrift.ClientWin
                     Console.WriteLine("false" + ex.Message);
                 }
 
-                System.Threading.Thread.Sleep(500);
+                System.Threading.Thread.Sleep(5000);
             }
 
             int het = 10;

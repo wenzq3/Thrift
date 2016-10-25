@@ -32,6 +32,8 @@ namespace Thrift.Server
                 {
                     //  throw new Exception("连接异常");
                     zk.Dispose();
+                    zk = null;
+                    ThriftLog.Info("ZooKeeper CreateClient null");
                     return null;
                 }
                 System.Threading.Thread.Sleep(1);

@@ -120,21 +120,24 @@ namespace Thrift.Client
         /// </summary>
         private void WatchServer(ZooKeeper zk, string znode)
         {
-            new System.Threading.Thread(() =>
-            {
-                bool isRegister = false;
-                while (!isRegister)
-                {
-                    isRegister = ZookeeperWatcherHelp.Register(zk, znode, null, (@event, nodeData) =>
-                     {
-                         _config = GetConfig(false);
-                         if (_updateHostDelegate != null)
-                             _updateHostDelegate();
-                     });
+            //new System.Threading.Thread(() =>
+            //{
+            //    bool isRegister = false;
+            //    while (!isRegister)
+            //    {
+            var isRegister = ZookeeperWatcherHelp.Register(zk, znode, null, (@event, nodeData) =>
+              {
+                  var children = ZookeeperHelp.GetChildren(_zk, _config.ZookeeperConfig.NodeParent);
+                  if (children != null && children.Count > 0)
+                      _config.Host = string.Join(",", children);
 
-                    System.Threading.Thread.Sleep(10000);
-                }
-            }).Start();
+                  if (_updateHostDelegate != null)
+                      _updateHostDelegate();
+              });
+
+            //        System.Threading.Thread.Sleep(10000);
+            //    }
+            //}).Start();
         }
 
         public void Process(WatchedEvent @event)
@@ -146,7 +149,6 @@ namespace Thrift.Client
                 _zk = null;
                 _config = GetConfig(true);
             }
-
         }
     }
 }
