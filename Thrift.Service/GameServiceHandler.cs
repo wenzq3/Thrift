@@ -12,11 +12,16 @@ namespace Thrift.Service
     public class GameServiceHandler : ThriftTestThrift.Iface
     {
 
+        public GameServiceHandler()
+        {
+            Console.WriteLine("GameServiceHandler()");
+        }
+
         private GameService2 gameService = new Thrift.Test.GameService2();
 
         public Thrift_Test_Game2 get2()
         {
-    //        Console.WriteLine(ServerEventHandler.GetClientIP());
+            //        Console.WriteLine(ServerEventHandler.GetClientIP());
             var data = gameService.get2();
 
             Thrift_Test_Game2 gg;

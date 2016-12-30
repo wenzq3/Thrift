@@ -14,6 +14,9 @@ namespace Thrift.Server
 
         private static bool _log=false;
 
+        public static Action<string> _eventInfo = null;
+        public static Action<string> _eventError = null;
+
         static ThriftLog()
         {
             var log = ConfigurationManager.AppSettings["ThriftLog"];
@@ -26,14 +29,26 @@ namespace Thrift.Server
         public static void Info(string msg)
         {
             Console.WriteLine(msg);
+
             if (_log)
-                LOG.Info("ThriftServer:" + msg);
+            {
+                if (_eventInfo != null)
+                    _eventInfo("ThriftServer:" + msg);
+                else
+                    LOG.Info("ThriftServer:" + msg);
+            }
         }
         public static void Error(string msg)
         {
             Console.WriteLine(msg);
+
             if (_log)
-                LOG.Error("ThriftServer:" + msg);
+            {
+                if (_eventError != null)
+                    _eventError("ThriftServer:" + msg);
+                else
+                    LOG.Error("ThriftServer:" + msg);
+            }
         }
     }
 }

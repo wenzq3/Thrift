@@ -23,6 +23,11 @@ namespace Thrift.ServiceWin
 
             //启动服务
             LogHelper.Info("start");
+
+            //
+            //Thrift.Server.ThriftLog._eventInfo = (x) => { LogHelper.Info(x); };
+            //Thrift.Server.ThriftLog._eventError = (x) => { LogHelper.Error(x); };
+
             Thrift.Server.Server.Start();
 
             Console.WriteLine("按做任意键关闭");

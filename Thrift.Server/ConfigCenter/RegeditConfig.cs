@@ -198,6 +198,7 @@ namespace Thrift.Server
             {
                 if (_IPAddress.AddressFamily.ToString() == "InterNetwork")
                 {
+                    if (_IPAddress.ToString().IndexOf("10.") == 0) return _IPAddress.ToString();
                     if (_IPAddress.ToString().IndexOf("192.") == 0) return _IPAddress.ToString();
                     ips.Add(_IPAddress.ToString());
                 }

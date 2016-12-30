@@ -55,7 +55,8 @@ namespace Thrift.Client
                 {
                     ThriftLog.Info($"销毁连接： {_host} {ex.Message}");
                     Destroy();
-                    return null;
+                    throw new Exception($"ThriftClient 连接异常 {_host}");
+                    //return null;
                 }
             }
         }
