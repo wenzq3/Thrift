@@ -18,7 +18,7 @@ namespace Thrift.Client
     /// <typeparam name="T"></typeparam>
     public class ThriftClientPool<T> where T : class
     {
-        private ConcurrentQueue<Lazy<ThriftClient<T>>> _clients = new ConcurrentQueue<Lazy<ThriftClient<T>>>();
+        private ConcurrentQueue<ThriftClient<T>> _clients = new ConcurrentQueue<ThriftClient<T>>();
 
         private ThriftClientConfig _config;
         private int _count = 0;//已创建的连接数量
@@ -52,14 +52,17 @@ namespace Thrift.Client
                 int count = _clients.Count;
                 for (int i = 0; i < count; i++)
                 {
-                    Lazy<ThriftClient<T>> client = null;
+                    ThriftClient<T> client = null;
                     if (!_clients.TryDequeue(out client))
                         break;
 
-                    if (!_config.Config.Host.Contains(client.Value.Host))
-                        client.Value.Destroy(); //删除不可用的连接
+                    if (!_config.Config.Host.Contains(client.Host))
+                    {
+                        ThriftLog.Info("删除不可用的连接：" + client.Host);
+                        client.Destroy(); //删除不可用的连接
+                    }
                     else
-                        client.Value.Push(); //主动回收
+                        client.Push(); //主动回收
                 }
             }
 
@@ -88,12 +91,10 @@ namespace Thrift.Client
                     if (_count >= _config.Config.MaxConnectionsNum)
                         return;
 
-                    Lazy<ThriftClient<T>> client = new Lazy<ThriftClient<T>>(() =>
-                    {
-                        var item = ThriftClientFactory.Create(_config.Config);
-                        var token = System.Guid.NewGuid().ToString();
-                        return new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3, token);
-                    });
+                    var item = ThriftClientFactory.Create(_config.Config);
+                    if (item == null) return;
+                    var token = System.Guid.NewGuid().ToString();
+                    var client = new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3, token);
 
                     _clients.Enqueue(client);
                     _count++;
@@ -179,7 +180,7 @@ namespace Thrift.Client
                 return;
             }
 
-            _clients.Enqueue(new Lazy<ThriftClient<T>>(() => new ThriftClient<T>(client, this, host, token)));
+            _clients.Enqueue(new ThriftClient<T>(client, this, host, token));
         }
 
         public void Destroy(string token)
@@ -201,15 +202,14 @@ namespace Thrift.Client
             {
             }
 
-            Lazy<ThriftClient<T>> client = null;
+            ThriftClient<T> client = null;
 
             if (_clients.TryDequeue(out client))
             {
-                var value = client.Value;
                 lock (_lockPopHelper)
                 {
-                    _listPop.Add(value.Token, value.Host);
-                    return value;
+                    _listPop.Add(client.Token, client.Host);
+                    return client;
                 }
             }
 

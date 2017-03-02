@@ -15,27 +15,27 @@ namespace Thrift.ServiceWin
     {
         static void Main(string[] args)
         {
-            //////生成使用代码
-            //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
-            //Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
-            ////help.Create(filePath, typeof(Thrift.Test.IGameService2));
-            //help.Create(filePath, typeof(Thrift.Test.IGameService2), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
+            ////生成使用代码
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
+            Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
+            //help.Create(filePath, typeof(Thrift.Test.IGameService2));
+            help.Create(filePath, typeof(Thrift.Test.My.IGameService2), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
+            help.CreateFullName(filePath, typeof(Thrift.Test.My.IGameService2), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
+            ////启动服务
+            //LogHelper.Info("start");
 
-            //启动服务
-            LogHelper.Info("start");
-
-            //
+            ////
             //Thrift.Server.ThriftLog._eventInfo = (x) => { LogHelper.Info(x); };
             //Thrift.Server.ThriftLog._eventError = (x) => { LogHelper.Error(x); };
 
-            Thrift.Server.Server.Start();
+            //Thrift.Server.Server.Start();
 
-            Console.WriteLine("按做任意键关闭");
-            Console.ReadLine();
+            //Console.WriteLine("按做任意键关闭");
+            //Console.ReadLine();
 
-            Console.WriteLine("关闭中...");
-            Thrift.Server.Server.Stop();
-            Console.WriteLine("关闭完成");
+            //Console.WriteLine("关闭中...");
+            //Thrift.Server.Server.Stop();
+            //Console.WriteLine("关闭完成");
         }
     }
 }

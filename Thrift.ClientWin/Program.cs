@@ -23,26 +23,32 @@ namespace Thrift.ClientWin
         {
             while (true)
             {
+                var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift");
                 try
                 {
-              //    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                    //    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
                     {
-                        var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift");
-                            Console.WriteLine("GetALL:" + svc.Client.get2());
+
+                        Console.WriteLine("GetALL:" + svc.Client.get2());
                         //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
 
                         Console.WriteLine("true");
                     }
+                    System.Threading.Thread.Sleep(10000);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("false" + ex.Message);
                 }
+                finally
+                {
+                        svc.Dispose();
+                }
 
-                System.Threading.Thread.Sleep(5000);
             }
+            ThreadPool.SetMinThreads(1000, 1000);
 
-            int het = 10;
+            int het = 100;
 
     
             var stopwatch = new Stopwatch();

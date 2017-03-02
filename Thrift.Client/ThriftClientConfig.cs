@@ -17,6 +17,8 @@ namespace Thrift.Client
         private string _configPath;
         private ZooKeeper _zk;
 
+        private string _defaultHost = "";//默认地址
+
         private Action _updateHostDelegate = null; //服务主机更改通知
 
         public ThriftClientConfig(string sectionName, string serviceName, Action updateHostDelegate)
@@ -99,6 +101,7 @@ namespace Thrift.Client
                 if (_zk == null)
                     throw new Exception($"Zookeeper服务 {service.ZookeeperConfig.Host} 连接失败");
 
+                _defaultHost = service.Host;
                 var children = ZookeeperHelp.GetChildren(_zk, service.ZookeeperConfig.NodeParent);
                 if (children != null && children.Count > 0)
                     service.Host = string.Join(",", children);
@@ -130,6 +133,8 @@ namespace Thrift.Client
                   var children = ZookeeperHelp.GetChildren(_zk, _config.ZookeeperConfig.NodeParent);
                   if (children != null && children.Count > 0)
                       _config.Host = string.Join(",", children);
+                  else
+                      _config.Host = _defaultHost;
 
                   if (_updateHostDelegate != null)
                       _updateHostDelegate();

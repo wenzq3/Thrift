@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Thrift.Server;
 using Thrift.Test;
+using Thrift.Test.My;
 using Thrift.Test.Thrift;
 
 namespace Thrift.Service
@@ -17,11 +18,12 @@ namespace Thrift.Service
             Console.WriteLine("GameServiceHandler()");
         }
 
-        private GameService2 gameService = new Thrift.Test.GameService2();
+        private GameService2 gameService = new Thrift.Test.My.GameService2();
 
         public Thrift_Test_Game2 get2()
         {
-            //        Console.WriteLine(ServerEventHandler.GetClientIP());
+            
+            Console.WriteLine(ServerEventHandler.GetClientIP()+":"+DateTime.Now);
             var data = gameService.get2();
 
             Thrift_Test_Game2 gg;

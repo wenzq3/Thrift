@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 using Thrift.IDLHelp;
 using Thrift.Test.Entity;
 
-namespace Thrift.Test
+namespace Thrift.Test.My
 {
 
-    public class BaseGame {
+    public class BaseGame
+    {
         /// <summary>
         /// 操作是否成功
         /// </summary>
-        public bool Successed { get; set; }
+        public bool Status { get; set; }
 
         /// <summary>
         /// 操作失败或异常返回消息
@@ -23,53 +24,71 @@ namespace Thrift.Test
         /// <summary>
         /// 状态码：0：表示操作成功
         /// </summary>
-        public int StatusCode { get; set; }
+        public int Code { get; set; }
     }
 
-    public class Game
+    public class Game1 : BaseGame
     {
         public int GameID { get; set; }
     }
 
-    public class Game2: BaseGame
+    public class Game2 : BaseGame
     {
         public int GameID { get; set; }
+
+        public Game3 game3 { get; set; }
+
+        public List<Game4> game4 { get; set; }
+
+        public Dictionary<Game4,Game5> gg { get; set; }
+    }
+
+    public class Game3 : BaseGame
+    {
+        public string GameName { get; set; }
+    }
+
+    public class Game4 : BaseGame
+    {
+        public string GameName { get; set; }
+    }
+
+    public class Game5 : BaseGame
+    {
+        public string GameName { get; set; }
     }
 
     public interface IGameService2
     {
-     //   Result<Game> get1();
         Game2 get2();
+
+        bool get1(Game1 game);
+
+        List<Game5> get4();
+
+
+        List<int> getlist();
     }
 
     public class GameService2 : IGameService2
     {
-     //   public Result<Game> get1()
-        //{
-        //    return null;
-        //}
-
         public Game2 get2()
         {
             return null;
         }
-    }
+        public bool get1(Game1 game)
+        {
+            return false;
+        }
 
-    /// <summary>
-    /// 测试thrift服务接口定义
-    /// </summary>
-    public interface IGameService
-    {
-        string ss();
-        List<int> aa();
-        bool bb();
-        int cc();
-        GameInfo Get(int gameId);
+        public List<Game5> get4()
+        {
+            return null;
+        }
 
-        void Ping();
-
-
-        List<GameInfo> GetALL();
-
+        public List<int> getlist()
+        {
+            return null;
+        }
     }
 }

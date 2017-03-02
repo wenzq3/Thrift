@@ -54,8 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\Language.cs" />
-    <Compile Include="IDLCreate2.cs" />
-    <Compile Include="IDLCreate.cs" />
+    <Compile Include="IDLCommon.cs" />
+    <Compile Include="IDLCreate_Name.cs" />
+    <Compile Include="IDLCreate_FullName.cs" />
     <Compile Include="Models\DirectoryModel.cs" />
     <Compile Include="Models\FileModel.cs" />
     <Compile Include="Help.cs" />

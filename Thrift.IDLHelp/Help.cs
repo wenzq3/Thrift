@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using static Thrift.IDLHelp.IDLCreate2;
+using static Thrift.IDLHelp.IDLCreate_Name;
 
 namespace Thrift.IDLHelp
 {
@@ -41,7 +41,7 @@ namespace Thrift.IDLHelp
         }
 
         /// <summary>
-        /// 生成
+        /// 生成简单类名
         /// </summary>
         /// <param name="filePath">生成路径</param>
         /// <param name="type">服务接口类型</param>
@@ -49,16 +49,17 @@ namespace Thrift.IDLHelp
         /// <param name="serviceName">自定义服务名</param>
         /// <param name="dllName">dll名称</param>
         /// <returns></returns>
-        public void Create(string filePath, Type type, string nSpace = "", string serviceName = "", string version = "")
+        public void Create(string filePath, Type type, string nSpace, string serviceName, string version = "")
         {
-            //try
-            //{
-            //var create = new IDLCreate();
-            //var idlcode = create.Create(typeof(Thrift.Test.ITestService), "abc.ee");
             List<FunInfo> funs;
-            var create2 = new IDLCreate2();
-            var idlcode = create2.Create(type, out funs, nSpace, serviceName);
+            var create = new IDLCreate_Name();
+            var idlcode = create.Create(type, out funs, nSpace, serviceName);
 
+            CreateFile(funs, idlcode, filePath, nSpace, version);
+        }
+
+        private void CreateFile(List<FunInfo> funs, Tuple<string, string, string> idlcode, string filePath, string nSpace, string version = "")
+        {
             var cmd = new ThriftCmd();
 
             Directory.CreateDirectory(filePath);
@@ -99,7 +100,7 @@ namespace Thrift.IDLHelp
             string dllName = idlcode.Item1 + ".dll";
             string thriftdll = ThriftDLL.ResolvePath(Path.Combine(filePath, guid));
             string cscPath = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe";
-            cscPath = @"F:\ThriftTest\csc.exe";
+
             cscPath = Csc.ResolvePath(Path.Combine(filePath, guid));
             string dllname = Path.Combine(filePath, guid, "Out", dllName);
             string AssemblyInfoPath = AssemblyInfo.ResolvePath(Path.Combine(filePath, guid), nSpace, version);
@@ -108,7 +109,6 @@ namespace Thrift.IDLHelp
 
             Console.WriteLine(RunCmd(dll));
             Console.WriteLine();
-
 
 
             ConsoleColor currentForeColor = Console.ForegroundColor;
@@ -122,12 +122,25 @@ namespace Thrift.IDLHelp
 
             Console.WriteLine("按任意键继续...");
             Console.ReadLine();
-            //     return "生成成功：" + Path.Combine(filePath, guid, "Out");
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new Exception("生成错误：" + ex.Message);
-            //}
+        }
+
+
+        /// <summary>
+        /// 生成完整类名
+        /// </summary>
+        /// <param name="filePath">生成路径</param>
+        /// <param name="type">服务接口类型</param>
+        /// <param name="nSpace">自定义命名空间</param>
+        /// <param name="serviceName">自定义服务名</param>
+        /// <param name="dllName">dll名称</param>
+        /// <returns></returns>
+        public void CreateFullName(string filePath, Type type, string nSpace, string serviceName, string version = "")
+        {
+            List<FunInfo> funs;
+            var create = new IDLCreate_FullName();
+            var idlcode = create.Create(type, out funs, nSpace, serviceName);
+
+            CreateFile(funs, idlcode, filePath, nSpace, version);
         }
     }
 }

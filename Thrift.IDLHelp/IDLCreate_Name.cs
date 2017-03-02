@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 namespace Thrift.IDLHelp
 {
 
-
-    public class IDLCreate2
+    /// <summary>
+    /// 此方法，不允许类名重复
+    /// </summary>
+    public class IDLCreate_Name
     {
         /// <summary>
         /// 生成IDL模板
@@ -19,8 +21,14 @@ namespace Thrift.IDLHelp
         /// <param name="Namespace">IDL命名空间</param>
         /// <param name="serviceName">IDL服务名</param>
         /// <param name="filePath"></param>
-        public Tuple<string, string, string> Create(Type type, out List<FunInfo> funs, string Namespace = "", string serviceName = "", string filePath = "")
+        public Tuple<string, string, string> Create(Type type, out List<FunInfo> funs, string Namespace, string serviceName)
         {
+            if (string.IsNullOrEmpty(Namespace))
+                Namespace = type.Namespace;
+
+            if (string.IsNullOrEmpty(serviceName))
+                serviceName = type.Name + "Thrift";
+
             List<TypeInfo> types = new List<TypeInfo>(); //实体类型集合
             funs = new List<FunInfo>(); //方法集合
 
@@ -31,6 +39,7 @@ namespace Thrift.IDLHelp
 
                 fun.ReturnType = m.ReturnType.ToString();
                 fun.FunName = m.Name;
+
                 fun.Parameters = new List<Tuple<string, string>>();
 
                 string asName = m.ReturnType.Assembly.FullName.Substring(0, m.ReturnType.Assembly.FullName.IndexOf(","));
@@ -52,23 +61,6 @@ namespace Thrift.IDLHelp
 
             //--------------------------------------------------//
 
-            if (string.IsNullOrEmpty(Namespace))
-                Namespace = type.Namespace;
-
-            if (string.IsNullOrEmpty(serviceName))
-                serviceName = type.Name + "Thrift";
-
-
-            //  foreach (var itemType in types)
-            //  {
-            //      if (isSystemType(itemType.ClassName))
-            //          continue;
-
-            //      Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
-
-            ////      GetModelName(t.FullName, t.Name);
-            //  }
-
             System.Text.StringBuilder str = new StringBuilder();
 
             str.AppendLine($"namespace csharp   {Namespace}");
@@ -77,40 +69,16 @@ namespace Thrift.IDLHelp
 
             str.AppendLine();
 
-
             foreach (var itemType in types)
             {
                 if (isSystemType(itemType.ClassName))
                     continue;
 
-                //   if (itemType.ClassName.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
-                //   {
-                //       var className = itemType.ClassName.Replace("Thrift.IDLHelp.Result`1[","");
-
-                ////       string vt = GetVoType(className);
-                //    string thriftType = GetThriftType(className);
-                //       string resultClassName = "Result_" + thriftType;
-
-                //       str.AppendLine($"struct {resultClassName}");
-                //       str.AppendLine("{");
-                //       int i = 1;
-                //       str.AppendLine($"{i++}: optional i32 StatusCode");
-                //       str.AppendLine($"{i++}: optional string  Message");
-                //       str.AppendLine($"{i++}: optional bool Successed");
-                //       str.AppendLine($"{i++}: optional {thriftType} Data");
-
-                //       str.AppendLine("}");
-                //       str.AppendLine();
-
-                //       continue;
-                //   }
-
-
                 Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
 
                 if (t.BaseType == typeof(System.Enum))
                 {
-                    str.AppendLine($"enum {GetModelName(t.FullName, t.Name)}");
+                    str.AppendLine($"enum {t.Name}");
                     str.AppendLine("{");
 
                     foreach (var f in t.GetFields(BindingFlags.Static | BindingFlags.Public))
@@ -124,7 +92,7 @@ namespace Thrift.IDLHelp
                 }
                 else
                 {
-                    str.AppendLine($"struct {GetModelName(t.FullName, t.Name)}");
+                    str.AppendLine($"struct { t.Name}");
                     str.AppendLine("{");
 
                     int i = 1;
@@ -160,16 +128,6 @@ namespace Thrift.IDLHelp
 
             str.AppendLine("}");
 
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                FileStream fs = new FileStream(filePath, FileMode.Create);
-                StreamWriter sw = new StreamWriter(fs);
-                sw.WriteLine(str.ToString());
-                sw.Flush();
-                sw.Close();
-                fs.Close();
-            }
-
             ConsoleColor currentForeColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("IDL模板：");
@@ -183,26 +141,32 @@ namespace Thrift.IDLHelp
 
         #region private
 
-        public class FunInfo
-        {
-            public bool CanReturnNull { get; set; }
-            public string ReturnType { get; set; }
-            public string FunName { get; set; }
+        //public class FunInfo
+        //{
+        //    public bool CanReturnNull { get; set; }
 
-            public List<Tuple<string, string>> Parameters { get; set; }
-        }
+        //    /// <summary>
+        //    /// 返回类型
+        //    /// </summary>
+        //    public string ReturnType { get; set; }
 
-        private class TypeInfo
-        {
-            public string ClassName { get; set; }
-            public string AssemblyName { get; set; }
-            public bool IsEnum { get; set; }
-        }
+        //    /// <summary>
+        //    /// 方法名
+        //    /// </summary>
+        //    public string FunName { get; set; }
 
-        private string GetModelName(string fullName, string name)
-        {
-            return fullName.Replace(".", "_");
-        }
+        //    //返回类型名
+        //    public string ReturnClassName { get; set; }
+
+        //    public List<Tuple<string, string>> Parameters { get; set; }
+        //}
+
+        //private class TypeInfo
+        //{
+        //    public string ClassName { get; set; }
+        //    public string AssemblyName { get; set; }
+        //    public bool IsEnum { get; set; }
+        //}
 
         private string GetThriftType(string type)
         {
@@ -261,15 +225,16 @@ namespace Thrift.IDLHelp
                 return $"set<{GetThriftType(p)}>";
             }
 
-            //if (type.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
-            //{
-            //    string p = type.Substring("Thrift.IDLHelp.Result`1[".Length, type.Length - "Thrift.IDLHelp.Result`1[".Length - 1);
-            //    return "Result_" +GetThriftType(p);
-            //}
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
 
-            return type.Replace(".", "_");
+            //  return typeClassName;
+            int index = type.LastIndexOf(".");
+            if (index > 0)
+                return type.Substring(index + 1, type.Length - index - 1);
+
+            return type;
+            //return type.Replace(".", "_");
         }
 
         private bool CanReturnNull(string type)
@@ -309,6 +274,9 @@ namespace Thrift.IDLHelp
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
 
+            if (type.Contains("System.DateTime"))
+                throw new Exception("生成错误，目前不支持System.DateTime 类型！");
+
             return true;
         }
 
@@ -334,6 +302,7 @@ namespace Thrift.IDLHelp
                 case "System.SByte[]":
                 case "System.Boolean[]":
                 case "System.Double[]":
+                case "System.DateTime":
                     return true;
             }
 
@@ -386,30 +355,6 @@ namespace Thrift.IDLHelp
                 return;
             }
 
-            //if (className.IndexOf("Thrift.IDLHelp.Result`1[") == 0)
-            //{
-            //    className = className.Remove(0, "Thrift.IDLHelp.Result`1[".Length);
-            //    className = className.Remove(className.Length - 1, 1);
-
-            //    string resultName = className;
-            //    if (resultName.IndexOf("[") == 0)
-            //                  resultName = resultName.Remove(0, 1);
-
-            //    if (resultName.IndexOf(",") >= 0)
-            //                   resultName = resultName.Substring(0, resultName.IndexOf(","));
-
-            //    if (resultName.IndexOf("]") >= 0)
-            //        resultName = resultName.Substring(0, resultName.IndexOf("]"));
-
-            //    string resultClassName = "Thrift.IDLHelp.Result`1[" + resultName;
-
-            //    if (!types.Exists(x => x.ClassName == resultClassName))
-            //        types.Add(new TypeInfo() { ClassName = resultClassName, AssemblyName = "", IsEnum = false });
-
-            //    AddType(types, className, "mscorlib", isEnum);
-            //    return;
-            //}
-
             if (className.Contains("System.Object"))
                 throw new Exception("生成错误，目前不支持 System.Object类型！");
 
@@ -448,7 +393,6 @@ namespace Thrift.IDLHelp
                 var an = className.Substring(className.IndexOf(",") + 2, className.IndexOf(",", className.IndexOf(",") + 1) - className.IndexOf(",") - 2);
 
                 className = cn;
-                //      assemblyName = an;
             }
             return className;
         }
