@@ -13,86 +13,204 @@ using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
 using Thrift.Test.Thrift;
+using System.Net.Http;
 
 namespace Thrift.ClientWin
 {
     class Program
     {
-
+        private static int _count = 0;
         static void Main(string[] args)
         {
+            ThreadPool.SetMinThreads(100, 100);
+
             while (true)
             {
-                var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift");
-                try
+                //    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientSimple("ThriftTestThrift"))
+                using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
                 {
-                    //    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                    try
                     {
+                        string guid = System.Guid.NewGuid().ToString();
+                        var guid2 = svc.Client.get2(guid);
 
-                        Console.WriteLine("GetALL:" + svc.Client.get2());
-                        //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
-
-                        Console.WriteLine("true");
+                        if (guid != guid2)
+                            Console.WriteLine("false==================================");
+                        else
+                            Console.WriteLine("true");
                     }
-                    System.Threading.Thread.Sleep(10000);
+                    catch (Exception ex)
+                    {
+                        //if (svc != null)
+                        //    svc.Destroy();
+                        Console.WriteLine("false" + ex.Message);
+                    }
+                    //       svc.Destroy();
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("false" + ex.Message);
-                }
-                finally
-                {
-                        svc.Dispose();
-                }
-
+                System.Threading.Thread.Sleep(1000);
             }
-            ThreadPool.SetMinThreads(1000, 1000);
 
-            int het = 100;
+            //预热连接池
+            using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+            {
+                string guid = System.Guid.NewGuid().ToString();
+                var guid2 = svc.Client.get2(guid);
+                if (guid != guid2)
+                    Console.WriteLine($"{guid} != {guid2}");
+            }
 
-    
+            int len = 100;
+            int thlen = 1;
+
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
             var threads = new List<Thread>();
-            var countdown = new CountdownEvent(het);
-            for (int i = 0; i < het; i++)
+            for (int i = 0; i < thlen; i++)
             {
                 threads.Add(new Thread(() =>
                 {
-                    try
+                    while (_count++ < len)
                     {
-
-                        using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                        try
                         {
-                            Console.WriteLine("GetALL:" + svc.Client.get2());
-                            //        Console.WriteLine("Get:" + Newtonsoft.Json.JsonConvert.SerializeObject(svc.Client.Get(1)));
+                            //  {
+                            //      string guid = System.Guid.NewGuid().ToString();
 
-                            Console.WriteLine("true");
+                            //      var guid2 = RequestHttpData("http://127.0.0.1:1005/1.aspx?sleep=10&msg=" + guid,"GET");
+                            ////      var guid2 = HttpGet("http://127.0.0.1:1005/1.aspx?sleep=10&msg=" + guid).Result;
+
+                            //      if (guid != guid2)
+                            //          Console.WriteLine($"{guid} != {guid2}");
+
+                            //  }
+
+                            using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                            {
+                                string guid = System.Guid.NewGuid().ToString();
+                                var guid2 = svc.Client.get2(guid);
+                                if (guid != guid2)
+                                    Console.WriteLine($"{guid} != {guid2}");
+                            }
+
+                            //using (TTransport transport = new TSocket("192.168.1.179", 9021))
+                            //using (TProtocol protocol = new TBinaryProtocol(transport))
+                            //using (ThriftTestThrift.Client client = new ThriftTestThrift.Client(protocol))
+                            //{
+                            //    transport.Open();
+                            //    string guid = System.Guid.NewGuid().ToString();
+                            //    var guid2 = client.get2(guid);
+                            //    if (guid != guid2)
+                            //        Console.WriteLine($"{guid} != {guid2}");
+                            //}
                         }
-                    }
-                    catch (Exception ex) { Console.WriteLine("false:" + ex.StackTrace); }
-                    finally
-                    {
-                        countdown.Signal();
+                        catch (Exception ex) { Console.WriteLine("false:" + ex.StackTrace); }
                     }
                 }));
             }
 
-            for (int i = 0; i < het; i++)
+            for (int i = 0; i < thlen; i++)
             {
                 threads[i].Start();
-                //            System.Threading.Thread.Sleep(10);
             }
 
-            while (!countdown.IsSet) ;
+            while (_count < len) ;
             stopwatch.Stop();
 
             Console.WriteLine(stopwatch.ElapsedMilliseconds);
-            Console.WriteLine("over");
+            Console.WriteLine("over:" + _count);
 
 
             Console.ReadLine();
         }
+
+
+
+        public static async Task<string> HttpGet(string url, int timeOut = 3, Dictionary<string, string> headers = null)
+        {
+            var httpClient = new HttpClient();
+            try
+            {
+
+                httpClient.Timeout = TimeSpan.FromSeconds(timeOut);
+
+                if (headers != null)
+                {
+                    foreach (KeyValuePair<string, string> k in headers)
+                        httpClient.DefaultRequestHeaders.Add(k.Key, k.Value);
+                }
+
+                var response = await httpClient.GetAsync(url);
+                var buffer = await response.Content.ReadAsStreamAsync();
+
+                string result;
+                StreamReader reader;
+                reader = new StreamReader(buffer);
+                result = await reader.ReadToEndAsync();
+                return result;
+            }
+            finally
+            {
+                httpClient.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 同步get post
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="requestMethod">get or post</param>
+        /// <param name="postData">post 数据</param>
+        /// <param name="headers"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public static string RequestHttpData(string url, string requestMethod, string postData = "", Dictionary<string, string> headers = null, int timeout = 2000)
+        {
+            var request = WebRequest.Create(url) as HttpWebRequest;
+            if (request == null)
+            {
+                return "";
+            }
+            request.Timeout = timeout;
+            request.Method = requestMethod;
+            request.KeepAlive = true;
+            request.AllowAutoRedirect = false;
+            request.ContentType = "application/x-www-form-urlencoded";
+
+            if (headers != null)
+            {
+                foreach (KeyValuePair<string, string> k in headers)
+                    request.Headers.Add(k.Key, k.Value);
+            }
+
+            if (!string.IsNullOrEmpty(postData))
+            {
+                byte[] postdatabtyes = Encoding.UTF8.GetBytes(postData);
+                request.ContentLength = postdatabtyes.Length;
+                Stream requeststream = request.GetRequestStream();
+                requeststream.Write(postdatabtyes, 0, postdatabtyes.Length);
+                requeststream.Close();
+            }
+            else
+            {
+                request.ContentLength = 0;
+            }
+
+            string result;
+            using (var response = request.GetResponse() as HttpWebResponse)
+            {
+                if (response == null)
+                {
+                    return "";
+                }
+                StreamReader reader;
+                reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+
+                result = reader.ReadToEnd();
+            }
+            return result;
+        }
+
+
     }
 }

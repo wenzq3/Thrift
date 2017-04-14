@@ -1,92 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Thrift.Transport;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using Thrift.Transport;
 
-namespace Thrift.Client
-{
-    public class ThriftClientSimple<T> : IDisposable where T : class
-    {
-        private Tuple<TTransport, T> _client;
-        private ThriftClientPoolSimple<T> _clientPool;
-        private string _host;
+//namespace Thrift.Client
+//{
+//    public class ThriftClientSimple<T> : IDisposable where T : class
+//    {
+//        private Tuple<TTransport, T> _client;
+//        private ThriftClientConfig _config;
 
-        public ThriftClientSimple(Tuple<TTransport, T> client, ThriftClientPoolSimple<T> clientPool, string host)
-        {
-            _client = client;
-            _clientPool = clientPool;
-            _host = host;
-        }
+//        public ThriftClientSimple(string sectionName, string serviceName)
+//        {
+//            _config = new ThriftClientConfig(sectionName, serviceName,null);
 
-        /// <summary>
-        /// 当前连接的主机
-        /// </summary>
-        public string Host
-        {
-            get { return _host; }
-        }
+//            var item = ThriftClientFactory.Create(_config.Config);
+//            if (item == null) return;
 
-        public T Client
-        {
-            get
-            {
-                try
-                {
-                    if (!_client.Item1.IsOpen)
-                    {
-                        _client.Item1.Close();
-                        _client.Item1.Open();
-                    }
-                    return _client.Item2;
-                }
-                catch (Exception ex)
-                {
-                    ThriftLog.Info($"销毁连接： {_host} {ex.Message}");
-                    Destroy();
-                    return null;
-                }
-            }
-        }
+//            _client = Tuple.Create(item.Item1, item.Item2 as T);
+//            _client.Item1.Open();
+//        }
 
-        bool disposed = false;
+//        public T Client
+//        {
+//            get { return _client.Item2; }
+//        }
 
-        ~ThriftClientSimple()
-        {
-            Dispose(false);
-        }
-        protected void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    if (_client != null)
-                    {
-                        _clientPool.Push(_client, _host);
-                        _client = null;
-                    }
-                }
-                disposed = true;
-            }
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+//        bool disposed = false;
 
-        /// <summary>
-        /// 销毁
-        /// </summary>
-        public void Destroy()
-        {
-            if (_client != null)
-            {
-                _client = null;
-                _clientPool.Destroy();
-            }
-        }
-    }
-}
+//        ~ThriftClientSimple()
+//        {
+//            Dispose(false);
+//        }
+//        protected void Dispose(bool disposing)
+//        {
+//            if (!disposed)
+//            {
+//                if (disposing)
+//                {
+//                    if (_client != null)
+//                    {
+//                        _client.Item1.Dispose();
+//                        _client = null;
+//                    }
+//                }
+//                disposed = true;
+//            }
+//        }
+//        public void Dispose()
+//        {
+//            Dispose(true);
+//            GC.SuppressFinalize(this);
+//        }
+//    }
+//}

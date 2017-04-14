@@ -11,8 +11,7 @@ namespace Thrift.Client
 {
     public static class ThriftClientManager<T> where T : class
     {
-        static private readonly Dictionary<string, ThriftClientPool<T>> _dit= new Dictionary<string, ThriftClientPool<T>>();
-        static private readonly Dictionary<string, ThriftClientPoolSimple<T>> _ditSimple = new Dictionary<string, ThriftClientPoolSimple<T>>();
+        static private readonly Dictionary<string, ThriftClientPool<T>> _dit = new Dictionary<string, ThriftClientPool<T>>();
         private static object lockHp = new object();
 
         static ThriftClientManager()
@@ -41,26 +40,12 @@ namespace Thrift.Client
             }
         }
 
-        static public ThriftClientSimple<T> GetClientSimple(string serviceName)
-        {
-            return GetClientSimple("thriftClient", serviceName);
-        }
+        //static public ThriftClientSimple<T> GetClientSimple(string serviceName)
+        //{
+        //    if (string.IsNullOrEmpty(serviceName)) throw new ArgumentNullException("serviceName");
 
-        static public ThriftClientSimple<T> GetClientSimple(string sectionName, string serviceName)
-        {
-            if (string.IsNullOrEmpty(serviceName)) throw new ArgumentNullException("serviceName");
+        //    return new ThriftClientSimple<T>("thriftClient", serviceName);
+        //}
 
-            if (_ditSimple.ContainsKey(serviceName))
-                return _ditSimple[serviceName].Pop();
-
-            lock (lockHp)
-            {
-                if (_ditSimple.ContainsKey(serviceName))
-                    return _ditSimple[serviceName].Pop();
-
-                _ditSimple.Add(serviceName, new ThriftClientPoolSimple<T>(sectionName, serviceName));
-                return _ditSimple[serviceName].Pop();
-            }
-        }
     }
 }

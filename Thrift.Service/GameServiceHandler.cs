@@ -20,22 +20,10 @@ namespace Thrift.Service
 
         private GameService2 gameService = new Thrift.Test.My.GameService2();
 
-        public Thrift_Test_Game2 get2()
+        public string  get2(string msg)
         {
-            
-            Console.WriteLine(ServerEventHandler.GetClientIP()+":"+DateTime.Now);
-            var data = gameService.get2();
-
-            Thrift_Test_Game2 gg;
-
-            if (data != null)
-            {
-                var result = data.MapTo<Thrift_Test_Game2>();
-                result.Successed = true;
-                return result;
-            }
-            else
-                return new Thrift_Test_Game2() { Successed = false };
+            System.Threading.Thread.Sleep(100);
+            return msg;
         }
     }
 }

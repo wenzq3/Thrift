@@ -49,9 +49,6 @@ namespace Thrift.Client
 
                 ThriftLog.Info("创建连接：" + config.Host + "--" + host);
 
-                //   X509Certificate2 cert = new X509Certificate2("123.pfx", "123");
-                // TTransport transport = new TTLSSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout, cert, (o, c, chain, errors) => true, null);
-
                 TTransport transport = new TSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout);
 
                 TProtocol protocol = new TBinaryProtocol(transport);

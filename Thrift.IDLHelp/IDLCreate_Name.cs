@@ -69,12 +69,18 @@ namespace Thrift.IDLHelp
 
             str.AppendLine();
 
+            List<Tuple<string, string>> listType= new List<Tuple<string, string>>();
+
             foreach (var itemType in types)
             {
                 if (isSystemType(itemType.ClassName))
                     continue;
 
                 Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
+
+                if (listType.Exists(x => x.Item2 == t.Name && x.Item1 != t.FullName))
+                    throw new Exception("简单类名不允许重复");
+                listType.Add(Tuple.Create<string, string>(t.FullName, t.Name));
 
                 if (t.BaseType == typeof(System.Enum))
                 {
@@ -141,33 +147,6 @@ namespace Thrift.IDLHelp
 
         #region private
 
-        //public class FunInfo
-        //{
-        //    public bool CanReturnNull { get; set; }
-
-        //    /// <summary>
-        //    /// 返回类型
-        //    /// </summary>
-        //    public string ReturnType { get; set; }
-
-        //    /// <summary>
-        //    /// 方法名
-        //    /// </summary>
-        //    public string FunName { get; set; }
-
-        //    //返回类型名
-        //    public string ReturnClassName { get; set; }
-
-        //    public List<Tuple<string, string>> Parameters { get; set; }
-        //}
-
-        //private class TypeInfo
-        //{
-        //    public string ClassName { get; set; }
-        //    public string AssemblyName { get; set; }
-        //    public bool IsEnum { get; set; }
-        //}
-
         private string GetThriftType(string type)
         {
             switch (type)
@@ -228,13 +207,11 @@ namespace Thrift.IDLHelp
             if (type.Contains("System.Tuple"))
                 throw new Exception("生成错误，目前不支持System.Tuple 类型！");
 
-            //  return typeClassName;
             int index = type.LastIndexOf(".");
             if (index > 0)
                 return type.Substring(index + 1, type.Length - index - 1);
 
             return type;
-            //return type.Replace(".", "_");
         }
 
         private bool CanReturnNull(string type)

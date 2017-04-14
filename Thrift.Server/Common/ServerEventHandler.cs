@@ -52,6 +52,7 @@ namespace Thrift.Server
         //删除Context的时候，触发
         public void deleteContext(object serverContext, TProtocol input, TProtocol output)
         {
+            Console.WriteLine("del");
             var id = System.Threading.Thread.CurrentThread.ManagedThreadId;
             string value;
             _ditIP.TryRemove(id, out value);
@@ -66,7 +67,7 @@ namespace Thrift.Server
         //每调用一次方法，就会触发一次
         public void processContext(object serverContext, TTransport transport)
         {
-            // ThriftLog.Info("processContext");
+            ThriftLog.Info("processContext");
         }
     }
 }
