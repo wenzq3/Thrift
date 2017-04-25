@@ -71,31 +71,31 @@ namespace Thrift.IDLHelp
             string codePath = Path.Combine(filePath, guid, "Code", idlpath) + @"\*.cs";
 
             //替换thrift生成的代码 
-            foreach (var code in Directory.GetFiles(Path.Combine(filePath, guid, "Code", idlpath)))
-            {
-                FileStream fs = new FileStream(code, FileMode.Open);//打开文件
-                StreamReader tr = new StreamReader(fs, Encoding.Default);
+            //foreach (var code in Directory.GetFiles(Path.Combine(filePath, guid, "Code", idlpath)))
+            //{
+            //    FileStream fs = new FileStream(code, FileMode.Open);//打开文件
+            //    StreamReader tr = new StreamReader(fs, Encoding.Default);
 
-                string str = tr.ReadToEnd();
-                tr.Close();
-                fs.Close();
+            //    string str = tr.ReadToEnd();
+            //    tr.Close();
+            //    fs.Close();
 
-                foreach (var fun in funs)
-                {
-                    if (fun.CanReturnNull)
-                    {
-                        Regex regex = new Regex("throw new TApplicationException\\(TApplicationException.ExceptionType.MissingResult, \"" + fun.FunName + " failed: unknown result\"\\);", RegexOptions.IgnoreCase);
-                        str = regex.Replace(str, "return null;");
-                    }
-                }
+            //foreach (var fun in funs)
+            //{
+            //    if (fun.CanReturnNull)
+            //    {
+            //        Regex regex = new Regex("throw new TApplicationException\\(TApplicationException.ExceptionType.MissingResult, \"" + fun.FunName + " failed: unknown result\"\\);", RegexOptions.IgnoreCase);
+            //        str = regex.Replace(str, "return null;");
+            //    }
+            //}
 
-                fs = new FileStream(code, FileMode.Create);//创建文件，存在则覆盖
-                StreamWriter sw = new StreamWriter(fs);//写入
+            //    fs = new FileStream(code, FileMode.Create);//创建文件，存在则覆盖
+            //    StreamWriter sw = new StreamWriter(fs);//写入
 
-                sw.Write(str);
-                sw.Close();
-                fs.Close();
-            }
+            //    sw.Write(str);
+            //    sw.Close();
+            //    fs.Close();
+            //}
 
             string dllName = idlcode.Item1 + ".dll";
             string thriftdll = ThriftDLL.ResolvePath(Path.Combine(filePath, guid));
@@ -142,5 +142,52 @@ namespace Thrift.IDLHelp
 
             CreateFile(funs, idlcode, filePath, nSpace, version);
         }
+
+
+        /// <summary>
+        /// 解析idl文件，并生成dll
+        /// </summary>
+        /// <param name="idlFilePath"></param>
+        /// <param name="outPath"></param>
+        /// <param name="nSpace"></param>
+        /// <param name="version"></param>
+        public void AnalyzeIDL(string idlFilePath, string outPath, string nSpace, string version = "")
+        {
+            var cmd = new ThriftCmd();
+
+            Directory.CreateDirectory(outPath);
+
+            string tempPathCode = Path.Combine(outPath, "Code");
+            Directory.CreateDirectory(tempPathCode);
+            string dllPathCode = Path.Combine(outPath, "Out");
+            Directory.CreateDirectory(dllPathCode);
+
+            string thriftdll = ThriftDLL.ResolvePath(outPath);
+
+            string formattedLanguage = Formatter.FormatLanguage(Language.CSharp);
+            string arguments = $"--gen \"{formattedLanguage}\" -out \"{tempPathCode}\" \"{idlFilePath}\"";
+
+            ThriftExe.Execute(outPath, arguments);
+
+            string codePath = Path.Combine(tempPathCode, nSpace.Replace(".", "\\")) + @"\*.cs";
+
+            string cscPath = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe";
+
+            string dllname = Path.Combine(dllPathCode, nSpace + ".dll");
+            string AssemblyInfoPath = AssemblyInfo.ResolvePath(outPath, nSpace, version);
+            string dll = $"{cscPath} /target:library /out:{dllname} /reference:{thriftdll} {AssemblyInfoPath} {codePath}";
+
+            Console.WriteLine(RunCmd(dll));
+            Console.WriteLine();
+        }
+
+        private static string ReadTextFile(string filePath)
+        {
+            using (StreamReader sr = File.OpenText(filePath))
+            {
+                return sr.ReadToEnd();
+            }
+        }
+
     }
 }

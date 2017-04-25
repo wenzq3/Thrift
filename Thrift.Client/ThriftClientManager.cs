@@ -47,5 +47,12 @@ namespace Thrift.Client
         //    return new ThriftClientSimple<T>("thriftClient", serviceName);
         //}
 
+        //using (TTransport transport = new TSocket("192.168.1.179", 9021))
+        //using (TProtocol protocol = new TBinaryProtocol(transport))
+        //using (GameRoomThrift.Client client = new GameRoomThrift.Client(protocol))
+        //{
+        //    transport.Open();
+
+        //}
     }
 }
