@@ -10,11 +10,11 @@ namespace Thrift.Client
     public class ThriftClient<T> : IDisposable where T : class
     {
         private Tuple<TTransport, T> _client;
-        private ThriftClientPool<T> _clientPool;
+        private IThriftClientPool<T> _clientPool;
         private string _host;
         private string _token;
 
-        public ThriftClient(Tuple<TTransport, T> client, ThriftClientPool<T> clientPool, string host, string token)
+        public ThriftClient(Tuple<TTransport, T> client, IThriftClientPool<T> clientPool, string host, string token)
         {
             _client = client;
             _clientPool = clientPool;
@@ -53,7 +53,7 @@ namespace Thrift.Client
                 }
                 catch (Exception ex)
                 {
-                    ThriftLog.Info($"销毁连接： {_host} {ex.Message}");
+                    //    ThriftLog.Info($"销毁连接： {_host} {ex.Message}");
                     Destroy();
                     throw new Exception($"ThriftClient 连接异常 {_host}");
                 }
@@ -94,7 +94,7 @@ namespace Thrift.Client
         {
             if (_client != null)
             {
-                _clientPool.Push(_client, _host, _token, false);
+                _clientPool.Push(_client, _host, _token);
                 _client = null;
             }
             disposed = true;

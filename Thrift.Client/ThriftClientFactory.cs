@@ -21,7 +21,7 @@ namespace Thrift.Client
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        static public Tuple<TTransport, object, string> Create(Config.Service config, List<string> errorHost = null)
+        static public Tuple<TTransport, object, string> Create(Config.Service config, bool isPool)
         {
             try
             {
@@ -47,7 +47,8 @@ namespace Thrift.Client
                 int num = new Random().Next(0, listUri.Count);
                 string host = listUri[num];
 
-                ThriftLog.Info("创建连接：" + config.Host + "--" + host);
+                if (isPool)
+                    ThriftLog.Info("创建连接：" + config.Host + "--" + host);
 
                 TTransport transport = new TSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout);
 
@@ -63,7 +64,7 @@ namespace Thrift.Client
             }
             catch (Exception ex)
             {
-                throw new Exception("ThriftClientFactory 创建实例异常:"+ex.Message);
+                throw new Exception("ThriftClientFactory 创建实例异常:" + ex.Message);
             }
         }
     }

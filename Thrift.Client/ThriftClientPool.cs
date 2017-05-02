@@ -16,7 +16,7 @@ namespace Thrift.Client
     /// 回收连接时，能够过滤错误的连接
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ThriftClientPool<T> where T : class
+    public class ThriftClientPool<T> : IThriftClientPool<T> where T : class
     {
         private ConcurrentQueue<ThriftClient<T>> _clients = new ConcurrentQueue<ThriftClient<T>>();
 
@@ -91,7 +91,7 @@ namespace Thrift.Client
                     if (_count >= _config.Config.MaxConnectionsNum)
                         return;
 
-                    var item = ThriftClientFactory.Create(_config.Config);
+                    var item = ThriftClientFactory.Create(_config.Config, true);
                     if (item == null) return;
                     var token = System.Guid.NewGuid().ToString();
                     var client = new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3, token);
@@ -132,13 +132,8 @@ namespace Thrift.Client
         /// 回收一个连接
         /// </summary>
         /// <param name="client"></param>
-        public void Push(Tuple<TTransport, T> client, string host, string token, bool lockHelp = true)
+        public void Push(Tuple<TTransport, T> client, string host, string token)
         {
-            if (lockHelp)
-            {
-                lock (_lockHelper) { }
-            }
-
             lock (_lockPopHelper)
             {
                 _listPop.Remove(token);
@@ -153,6 +148,7 @@ namespace Thrift.Client
                 try
                 {
                     client.Item1.Close();
+                    client.Item1.Dispose();
                     client = null;
                 }
                 catch (Exception ex)
@@ -170,6 +166,7 @@ namespace Thrift.Client
                 try
                 {
                     client.Item1.Close();
+                    client.Item1.Dispose();
                     client = null;
                 }
                 catch (Exception ex)
@@ -198,9 +195,9 @@ namespace Thrift.Client
         /// <returns></returns>
         private ThriftClient<T> GetOrCreateConnection(bool create)
         {
-            lock (_lockHelper)
-            {
-            }
+            //lock (_lockHelper)
+            //{
+            //}
 
             ThriftClient<T> client = null;
 

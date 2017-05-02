@@ -24,31 +24,32 @@ namespace Thrift.ClientWin
         {
             ThreadPool.SetMinThreads(100, 100);
 
-            while (true)
-            {
-                //    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientSimple("ThriftTestThrift"))
-                using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
-                {
-                    try
-                    {
-                        string guid = System.Guid.NewGuid().ToString();
-                        var guid2 = svc.Client.get2(guid);
+            //  while (true)
+            //  {
+            //     using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
+            ////           using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+            //      {
+            //          try
+            //          {
+            //              _count++;
+            //              string guid = _count.ToString();
+            //              var guid2 = svc.Client.get2(guid);
 
-                        if (guid != guid2)
-                            Console.WriteLine("false==================================");
-                        else
-                            Console.WriteLine("true");
-                    }
-                    catch (Exception ex)
-                    {
-                        //if (svc != null)
-                        //    svc.Destroy();
-                        Console.WriteLine("false" + ex.Message);
-                    }
-                    //       svc.Destroy();
-                }
-                System.Threading.Thread.Sleep(1000);
-            }
+            //              if (guid != guid2)
+            //                  Console.WriteLine("false==================================");
+            //              else
+            //                  Console.WriteLine("true");
+            //          }
+            //          catch (Exception ex)
+            //          {
+            //              if (svc != null)
+            //                  svc.Destroy();
+            //              Console.WriteLine("false:" + ex.Message);
+            //          }
+            //          //       svc.Destroy();
+            //      }
+            //      System.Threading.Thread.Sleep(2000);
+            //  }
 
             //预热连接池
             using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
@@ -60,7 +61,7 @@ namespace Thrift.ClientWin
             }
 
             int len = 100;
-            int thlen = 1;
+            int thlen =4;
 
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -85,7 +86,7 @@ namespace Thrift.ClientWin
 
                             //  }
 
-                            using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                            using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
                             {
                                 string guid = System.Guid.NewGuid().ToString();
                                 var guid2 = svc.Client.get2(guid);
@@ -104,13 +105,17 @@ namespace Thrift.ClientWin
                             //        Console.WriteLine($"{guid} != {guid2}");
                             //}
                         }
-                        catch (Exception ex) { Console.WriteLine("false:" + ex.StackTrace); }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("false:" + ex.StackTrace);
+                        }
                     }
                 }));
             }
 
             for (int i = 0; i < thlen; i++)
             {
+             System.Threading.Thread.Sleep(100);
                 threads[i].Start();
             }
 

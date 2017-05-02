@@ -11,7 +11,8 @@ namespace Thrift.Client
 {
     public static class ThriftClientManager<T> where T : class
     {
-        static private readonly Dictionary<string, ThriftClientPool<T>> _dit = new Dictionary<string, ThriftClientPool<T>>();
+        static private readonly Dictionary<string, ThriftClientPool<T>> _ditPool = new Dictionary<string, ThriftClientPool<T>>();
+        static private readonly Dictionary<string, ThriftClientNoPool<T>> _ditNoPool = new Dictionary<string, ThriftClientNoPool<T>>();
         private static object lockHp = new object();
 
         static ThriftClientManager()
@@ -27,25 +28,40 @@ namespace Thrift.Client
         {
             if (string.IsNullOrEmpty(serviceName)) throw new ArgumentNullException("serviceName");
 
-            if (_dit.ContainsKey(serviceName))
-                return _dit[serviceName].Pop();
+            if (_ditPool.ContainsKey(serviceName))
+                return _ditPool[serviceName].Pop();
 
             lock (lockHp)
             {
-                if (_dit.ContainsKey(serviceName))
-                    return _dit[serviceName].Pop();
+                if (_ditPool.ContainsKey(serviceName))
+                    return _ditPool[serviceName].Pop();
 
-                _dit.Add(serviceName, new ThriftClientPool<T>(sectionName, serviceName));
-                return _dit[serviceName].Pop();
+                _ditPool.Add(serviceName, new ThriftClientPool<T>(sectionName, serviceName));
+                return _ditPool[serviceName].Pop();
             }
         }
 
-        //static public ThriftClientSimple<T> GetClientSimple(string serviceName)
-        //{
-        //    if (string.IsNullOrEmpty(serviceName)) throw new ArgumentNullException("serviceName");
+        static public ThriftClient<T> GetClientNoPool(string serviceName)
+        {
+            return GetClientNoPool("thriftClient", serviceName);
+        }
 
-        //    return new ThriftClientSimple<T>("thriftClient", serviceName);
-        //}
+        static public ThriftClient<T> GetClientNoPool(string sectionName,string serviceName)
+        {
+            if (string.IsNullOrEmpty(serviceName)) throw new ArgumentNullException("serviceName");
+
+            if (_ditNoPool.ContainsKey(serviceName))
+                return _ditNoPool[serviceName].Pop();
+
+            lock (lockHp)
+            {
+                if (_ditNoPool.ContainsKey(serviceName))
+                    return _ditNoPool[serviceName].Pop();
+
+                _ditNoPool.Add(serviceName, new ThriftClientNoPool<T>(sectionName, serviceName));
+                return _ditNoPool[serviceName].Pop();
+            }
+        }
 
         //using (TTransport transport = new TSocket("192.168.1.179", 9021))
         //using (TProtocol protocol = new TBinaryProtocol(transport))

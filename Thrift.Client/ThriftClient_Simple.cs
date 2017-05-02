@@ -10,22 +10,42 @@
 //    public class ThriftClientSimple<T> : IDisposable where T : class
 //    {
 //        private Tuple<TTransport, T> _client;
-//        private ThriftClientConfig _config;
+//        private string _host;
 
-//        public ThriftClientSimple(string sectionName, string serviceName)
+//        public ThriftClientSimple(Tuple<TTransport, T> client, string host)
 //        {
-//            _config = new ThriftClientConfig(sectionName, serviceName,null);
+//            _client = client;
+//            _host = host;
+//        }
 
-//            var item = ThriftClientFactory.Create(_config.Config);
-//            if (item == null) return;
-
-//            _client = Tuple.Create(item.Item1, item.Item2 as T);
-//            _client.Item1.Open();
+//          /// <summary>
+//        /// 当前连接的主机
+//        /// </summary>
+//        public string Host
+//        {
+//            get { return _host; }
 //        }
 
 //        public T Client
 //        {
-//            get { return _client.Item2; }
+//            get
+//            {
+//                try
+//                {
+//                    if (!_client.Item1.IsOpen)
+//                    {
+//                        _client.Item1.Close();
+//                        _client.Item1.Open();
+//                    }
+//                    return _client.Item2;
+//                }
+//                catch (Exception ex)
+//                {
+//                    ThriftLog.Info($"销毁连接： {_host} {ex.Message}");
+//                    Destroy();
+//                    throw new Exception($"ThriftClient 连接异常 {_host}");
+//                }
+//            }
 //        }
 
 //        bool disposed = false;
@@ -49,10 +69,23 @@
 //                disposed = true;
 //            }
 //        }
+
 //        public void Dispose()
 //        {
 //            Dispose(true);
 //            GC.SuppressFinalize(this);
+//        }
+
+//        /// <summary>
+//        /// 销毁
+//        /// </summary>
+//        public void Destroy()
+//        {
+//            if (_client != null)
+//            {
+//                _client.Item1.Dispose();
+//                _client = null;
+//            }
 //        }
 //    }
 //}
