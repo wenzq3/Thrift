@@ -72,7 +72,6 @@
     <Compile Include="ThriftClient.cs" />
     <Compile Include="ThriftClientNoPool.cs" />
     <Compile Include="IThriftClientPool.cs" />
-    <Compile Include="ThriftClient_Simple.cs" />
     <Compile Include="ThriftClientConfig.cs" />
     <Compile Include="ThriftClientFactory.cs" />
     <Compile Include="ThriftClientManager.cs" />

@@ -10,7 +10,7 @@ using Thrift.Test.Thrift;
 
 namespace Thrift.Service
 {
-    public class GameServiceHandler : ThriftTestThrift.Iface
+    public class GameServiceHandler : MarshalByRefObject, ThriftTestThrift.Iface
     {
 
         public GameServiceHandler()
@@ -20,11 +20,18 @@ namespace Thrift.Service
 
         private GameService2 gameService = new Thrift.Test.My.GameService2();
 
-        public string  get2(string msg)
+        public string get2(string msg)
         {
-         //   if (msg == "2") throw new Exception("error");
+            //   if (msg == "2") throw new Exception("error");
             System.Threading.Thread.Sleep(100);
             return msg;
+        }
+
+        public string gettime()
+        {
+            throw new Exception("error");
+            System.Threading.Thread.Sleep(10);
+            return DateTime.Now.ToString();
         }
     }
 }

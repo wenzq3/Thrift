@@ -24,32 +24,35 @@ namespace Thrift.ClientWin
         {
             ThreadPool.SetMinThreads(100, 100);
 
-            //  while (true)
-            //  {
-            //     using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
-            ////           using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
-            //      {
-            //          try
-            //          {
-            //              _count++;
-            //              string guid = _count.ToString();
-            //              var guid2 = svc.Client.get2(guid);
+            while (true)
+            {
+                using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
+                //           using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                {
+                    try
+                    {
+                        _count++;
 
-            //              if (guid != guid2)
-            //                  Console.WriteLine("false==================================");
-            //              else
-            //                  Console.WriteLine("true");
-            //          }
-            //          catch (Exception ex)
-            //          {
-            //              if (svc != null)
-            //                  svc.Destroy();
-            //              Console.WriteLine("false:" + ex.Message);
-            //          }
-            //          //       svc.Destroy();
-            //      }
-            //      System.Threading.Thread.Sleep(2000);
-            //  }
+                        string guid = _count.ToString();
+                        var guid2 = svc.Client.get2(guid);
+
+                        if (guid != guid2)
+                            Console.WriteLine("false==================================");
+                        else
+                            Console.WriteLine("true");
+
+                        var ts = svc.Client.gettime();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (svc != null)
+                            svc.Destroy();
+                        Console.WriteLine("false:" + ex.Message);
+                    }
+                    //       svc.Destroy();
+                }
+                System.Threading.Thread.Sleep(2000);
+            }
 
             //预热连接池
             using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
@@ -92,6 +95,8 @@ namespace Thrift.ClientWin
                                 var guid2 = svc.Client.get2(guid);
                                 if (guid != guid2)
                                     Console.WriteLine($"{guid} != {guid2}");
+
+                                var ts= svc.Client.gettime();
                             }
 
                             //using (TTransport transport = new TSocket("192.168.1.179", 9021))

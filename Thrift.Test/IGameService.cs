@@ -82,7 +82,7 @@ namespace Thrift.Test.My
     {
         string get2(string guid);
 
-        //bool get1(Game1 game);
+        string gettime();
 
         //List<Game5> get4();
 
@@ -98,9 +98,9 @@ namespace Thrift.Test.My
             return guid;
         }
 
-        public Game2 get2()
+        public string gettime()
         {
-            return null;
+            return DateTime.Now.ToString();
         }
         public bool get1(Game1 game)
         {
