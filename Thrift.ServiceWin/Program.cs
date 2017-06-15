@@ -16,7 +16,7 @@ namespace Thrift.ServiceWin
     {
         static void Main(string[] args)
         {
-            ////生成使用代码
+            //生成使用代码
             //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
             //Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
             //////help.Create(filePath, typeof(Thrift.Test.IGameService2));
@@ -24,24 +24,28 @@ namespace Thrift.ServiceWin
 
             //help.AnalyzeIDL(@"f:\doc\ToPSvr.thrift", @"f:\qvc\", "Tcy.ToPSvr.Thrift", "1.0.1");
             //Console.ReadLine();
-            //启动服务
+            ////启动服务
+
             LogHelper.Info("start");
 
             //
             Thrift.Server.ThriftLog._eventInfo = (x) => { LogHelper.Info(x); };
             Thrift.Server.ThriftLog._eventError = (x) => { LogHelper.Error(x); };
 
-            Thrift.Server.ServerProxy._funcTime = (x, y, z) =>
+            //统计方法执行时间
+            Thrift.Server.Server._funcTime = (x, y, z) =>
             {
-                Console.WriteLine("执行方法完成：" + x + ":" + JsonSerializer(y) + " time:" + z);
+                Console.WriteLine($"执行方法完成：{x}({JsonSerializer(y)})  豪秒:{z}");
             };
 
-            Thrift.Server.ServerProxy._funcError = (x, y, z) =>
+            //统计方法异常
+            Thrift.Server.Server._funcError = (x, y, z) =>
             {
-                Console.WriteLine("执行方法异常：" + x + ":" + JsonSerializer(y));
+                Console.WriteLine($"执行方法异常：{x}({JsonSerializer(y)})  异常:{z.Message}");
             };
-            Thrift.Server.ServerProxy.Start();
-            //    Thrift.Server.Server.Start();
+
+
+            Thrift.Server.Server.Start();
 
             Console.WriteLine("按做任意键关闭");
             Console.ReadLine();

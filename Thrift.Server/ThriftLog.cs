@@ -14,7 +14,14 @@ namespace Thrift.Server
 
         private static bool _log=false;
 
+        /// <summary>
+        /// info事件
+        /// </summary>
         public static Action<string> _eventInfo = null;
+
+        /// <summary>
+        /// error事件
+        /// </summary>
         public static Action<string> _eventError = null;
 
         static ThriftLog()

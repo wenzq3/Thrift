@@ -18,15 +18,11 @@ namespace Thrift.Client
     /// <typeparam name="T"></typeparam>
     public class ThriftClientNoPool<T> : IThriftClientPool<T> where T : class
     {
-        private ConcurrentQueue<ThriftClient<T>> _clients = new ConcurrentQueue<ThriftClient<T>>();
-
         private ThriftClientConfig _config;
         private int _count = 0;//已创建的连接数量
-        private object _lockHelper = new object();
-        private object _lockPopHelper = new object();
-
-        private Dictionary<string, string> _listPop = new Dictionary<string, string>();
-        private HashSet<string> _hashErrorPop = new HashSet<string>();
+        private string[] _host;
+        private int _hostCount;
+        private int _hostIndex = 0;
 
         public ThriftClientNoPool(string sectionName, string serviceName)
         {
@@ -35,11 +31,14 @@ namespace Thrift.Client
             if (_config == null)
                 throw new Exception($"{sectionName} 结点 {serviceName} 不存在");
 
+            _host = _config.Config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            _hostCount = _host.Length;
+            _hostIndex = 0;
+
             if (_config.Config.IncrementalConnections < 0) throw new Exception("每次增长连接数不能小于0");
             if (_config.Config.MinConnectionsNum < 0) throw new Exception("最小连接池不能小于0");
             if (_config.Config.MinConnectionsNum > _config.Config.MaxConnectionsNum) throw new Exception("最大连接池不能小于最小连接池");
         }
-
 
         /// <summary>
         /// 从连接池返回一个可用连接
@@ -49,16 +48,17 @@ namespace Thrift.Client
         {
             if (_count >= _config.Config.MaxConnectionsNum)
             {
-          //      ThriftLog.Error("count:" + _count);
+                ThriftLog.Error("连接池达到最大数:" + _count);
                 return null;
             }
+
+            _config.Config.Host = _host[_hostIndex % _hostCount];
+
             var item = ThriftClientFactory.Create(_config.Config, false);
             if (item == null) return null;
-            //     var token = System.Guid.NewGuid().ToString();
             var client = new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3, "");
 
             _count++;
-            ThriftLog.Error("count:" + _count);
             return client;
         }
 
@@ -79,13 +79,12 @@ namespace Thrift.Client
                 ThriftLog.Error(ex.Message + ex.StackTrace);
             }
             _count--;
-            ThriftLog.Error("count:" + _count);
         }
 
         public void Destroy(string token)
         {
             _count--;
-            ThriftLog.Error("count:" + _count);
+            _hostIndex++;
         }
     }
 }

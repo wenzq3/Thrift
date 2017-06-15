@@ -35,15 +35,15 @@ namespace Thrift.Server
                 watch.Stop();
                 var time = watch.ElapsedMilliseconds;
 
-                if (ServerProxy._funcTime != null)
-                    ServerProxy._funcTime(url, args, time);
+                if (Server._funcTime != null)
+                    Server._funcTime(url, args, time);
 
                 return new ReturnMessage(returnValue, new object[0], 0, null, callMessage);
             }
             catch (Exception ex)
             {
-                if (ServerProxy._funcError != null)
-                    ServerProxy._funcError(url, args,ex);
+                if (Server._funcError != null)
+                    Server._funcError(url, args,ex);
                 throw ex;
             }
         }

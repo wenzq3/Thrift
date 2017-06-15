@@ -18,6 +18,16 @@ namespace Thrift.Server
 {
     public class Server
     {
+        /// <summary>
+        /// 方法执行时间
+        /// </summary>
+        public static Action<string, object[], long> _funcTime = null;
+
+        /// <summary>
+        /// 方法执行错误
+        /// </summary>
+        public static Action<string, object[], Exception> _funcError = null;
+
         private static Dictionary<TServer, RegeditConfig> _services = new Dictionary<TServer, RegeditConfig>();
         private const int _defaultDelayedTime = 20000; //默认延时关闭时间
 
@@ -42,9 +52,11 @@ namespace Thrift.Server
                     try
                     {
                         Assembly assembly = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.HandlerType.Split(',')[1]));
-                        object handle = assembly.CreateInstance(service.HandlerType.Split(',')[0], true);
-                        if (handle == null)
+                        object objType = assembly.CreateInstance(service.HandlerType.Split(',')[0], true);
+                        if (objType == null)
                             throw new Exception(service.HandlerType + "为空");
+
+                        var handle = TransparentProxy.Create(objType.GetType());
 
                         string assemblyName = service.SpaceName;
                         if (!string.IsNullOrEmpty(service.AssemblyName))
@@ -53,9 +65,6 @@ namespace Thrift.Server
                         var processor = (Thrift.TProcessor)Type.GetType($"{service.SpaceName}.{service.ClassName}+Processor,{assemblyName}", true)
                        .GetConstructor(new Type[] { Type.GetType($"{service.SpaceName}.{service.ClassName}+Iface,{assemblyName}", true) })
                           .Invoke(new object[] { handle });
-
-                        //X509Certificate2 cert = new X509Certificate2("123.pfx", "123");
-                        //TServerTransport serverTransport = new TTLSServerSocket(service.Port, service.ClientTimeout, true, cert, null, null);
 
                         TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
 
@@ -67,8 +76,6 @@ namespace Thrift.Server
                             {
                                 ThriftLog.Info("log:" + x);
                             });
-
-                     // server.setEventHandler(new ServerEventHandler());
 
                         RegeditConfig regiditConfig = null;
                         if (service.ZookeeperConfig != null && service.ZookeeperConfig.Host != "")

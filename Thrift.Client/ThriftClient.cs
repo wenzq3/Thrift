@@ -107,6 +107,7 @@ namespace Thrift.Client
         {
             if (_client != null)
             {
+                _client.Item1.Close();
                 _client.Item1.Dispose();
                 _client = null;
                 _clientPool.Destroy(_token);

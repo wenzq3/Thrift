@@ -26,8 +26,8 @@ namespace Thrift.ClientWin
 
             while (true)
             {
-                using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
-                //           using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                   using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
+              //          using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
                 {
                     try
                     {
@@ -41,7 +41,7 @@ namespace Thrift.ClientWin
                         else
                             Console.WriteLine("true");
 
-                        var ts = svc.Client.gettime();
+                    //    var ts = svc.Client.gettime();
                     }
                     catch (Exception ex)
                     {
