@@ -96,10 +96,17 @@ namespace Thrift.Server
         public static void Stop()
         {
             //先注销zookeeper
-            foreach (var server in _services)
+            try
             {
-                if (server.Value != null)
-                    server.Value.Logout();
+                foreach (var server in _services)
+                {
+                    if (server.Value != null)
+                        server.Value.Logout();
+                }
+            }
+            catch (Exception ex)
+            {
+                ThriftLog.Error(ex.Message);
             }
 
             if (_services.Count > 0)

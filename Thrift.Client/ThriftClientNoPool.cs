@@ -26,7 +26,7 @@ namespace Thrift.Client
 
         public ThriftClientNoPool(string sectionName, string serviceName)
         {
-            _config = new ThriftClientConfig(sectionName, serviceName, null);
+            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool);
 
             if (_config == null)
                 throw new Exception($"{sectionName} 结点 {serviceName} 不存在");
@@ -41,6 +41,17 @@ namespace Thrift.Client
         }
 
         /// <summary>
+        /// 更新连接池，删除不可用的连接
+        /// </summary>
+        public void UpdatePool()
+        {
+            ThriftLog.Info("UpdatePool:" + _config.Config.Host);
+            _host = _config.Config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            _hostCount = _host.Length;
+            _hostIndex = 0;
+        }
+
+        /// <summary>
         /// 从连接池返回一个可用连接
         /// </summary>
         /// <returns></returns>
@@ -51,6 +62,8 @@ namespace Thrift.Client
                 ThriftLog.Error("连接池达到最大数:" + _count);
                 return null;
             }
+
+            Console.WriteLine(_config.Config.Host);
 
             _config.Config.Host = _host[_hostIndex % _hostCount];
 

@@ -20,7 +20,5 @@ namespace Thrift.Client.Config
             get { return this["services"] as ServiceCollection; }
             set { this["services"] =value; }
         }
-
-
     }
 }

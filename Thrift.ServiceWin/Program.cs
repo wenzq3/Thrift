@@ -35,13 +35,13 @@ namespace Thrift.ServiceWin
             //统计方法执行时间
             Thrift.Server.Server._funcTime = (x, y, z) =>
             {
-                Console.WriteLine($"执行方法完成：{x}({JsonSerializer(y)})  豪秒:{z}");
+              //  Console.WriteLine($"执行方法完成：{x}({JsonSerializer(y)})  豪秒:{z}");
             };
 
             //统计方法异常
             Thrift.Server.Server._funcError = (x, y, z) =>
             {
-                Console.WriteLine($"执行方法异常：{x}({JsonSerializer(y)})  异常:{z.Message}");
+           //     Console.WriteLine($"执行方法异常：{x}({JsonSerializer(y)})  异常:{z.Message}");
             };
 
 

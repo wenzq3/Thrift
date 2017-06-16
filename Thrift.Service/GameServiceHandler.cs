@@ -23,7 +23,7 @@ namespace Thrift.Service
         public string get2(string msg)
         {
             //   if (msg == "2") throw new Exception("error");
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(10);
             return msg;
         }
 
