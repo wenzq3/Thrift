@@ -21,8 +21,6 @@ namespace Thrift.Server
         private ZooKeeper _zk;
         private List<ACL> _zk_Acl;
 
-        private bool _isLogout; //是否注销中
-
         Thread _threadStart;
 
         private static object lockHelp = new object();
@@ -30,7 +28,6 @@ namespace Thrift.Server
         public RegeditConfig(Service service)
         {
             _zk = null;
-            _isLogout = false;
             _service = service;
             _zk_Acl = Ids.OPEN_ACL_UNSAFE;
 
@@ -46,7 +43,6 @@ namespace Thrift.Server
 
         public void Logout()
         {
-            _isLogout = true;
             if (_zk != null)
                 _zk.Dispose();
         }
@@ -58,14 +54,15 @@ namespace Thrift.Server
                 if (_zk != null)
                 {
                     _zk = null;
-                    //_zk.Dispose();
                     System.GC.Collect();
                 }
+
                 if (_threadStart != null)
                 {
                     _threadStart.Abort();
                     _threadStart = null;
                 }
+
                 Start();
             }
         }
@@ -76,8 +73,6 @@ namespace Thrift.Server
         {
             while (true)
             {
-                if (_isLogout) break;
-
                 if (Regedit())
                     break;
 
@@ -183,8 +178,7 @@ namespace Thrift.Server
             //     if (@event.State == KeeperState.Disconnected || @event.State == KeeperState.Expired)
             if (@event.State == KeeperState.Expired)
             {
-                if (_isLogout) return;
-                ThriftLog.Info(" 重新注册zk");
+                ThriftLog.Info("重新注册zk");
                 ReStart();
             }
         }

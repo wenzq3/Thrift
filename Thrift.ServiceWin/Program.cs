@@ -20,9 +20,9 @@ namespace Thrift.ServiceWin
             //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
             //Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
             //////help.Create(filePath, typeof(Thrift.Test.IGameService2));
-            //help.Create(filePath, typeof(Thrift.Test.My.IGameService2), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
+            //help.Create(filePath, typeof(Thrift.Test.IGameService), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
 
-            //help.AnalyzeIDL(@"f:\doc\ToPSvr.thrift", @"f:\qvc\", "Tcy.ToPSvr.Thrift", "1.0.1");
+            ////help.AnalyzeIDL(@"f:\doc\ToPSvr.thrift", @"f:\qvc\", "Tcy.ToPSvr.Thrift", "1.0.1");
             //Console.ReadLine();
             ////启动服务
 
@@ -35,13 +35,13 @@ namespace Thrift.ServiceWin
             //统计方法执行时间
             Thrift.Server.Server._funcTime = (x, y, z) =>
             {
-              //  Console.WriteLine($"执行方法完成：{x}({JsonSerializer(y)})  豪秒:{z}");
+                Console.WriteLine($"执行方法完成：{x}({JsonSerializer(y)})  豪秒:{z}");
             };
 
             //统计方法异常
             Thrift.Server.Server._funcError = (x, y, z) =>
             {
-           //     Console.WriteLine($"执行方法异常：{x}({JsonSerializer(y)})  异常:{z.Message}");
+             Console.WriteLine($"执行方法异常：{x}({JsonSerializer(y)})  异常:{z.Message}");
             };
 
 

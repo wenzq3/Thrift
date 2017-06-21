@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Thrift.Server;
 using Thrift.Test;
-using Thrift.Test.My;
 using Thrift.Test.Thrift;
 
 namespace Thrift.Service
@@ -15,23 +14,22 @@ namespace Thrift.Service
 
         public GameServiceHandler()
         {
-            Console.WriteLine("GameServiceHandler()");
         }
 
-        private GameService2 gameService = new Thrift.Test.My.GameService2();
-
-        public string get2(string msg)
+        public GameInfoThrift GetGameInfo()
         {
-            //   if (msg == "2") throw new Exception("error");
-            System.Threading.Thread.Sleep(10);
-            return msg;
+            return new GameInfoThrift() { };
         }
 
-        public string gettime()
+        public string GetGuid(string guid)
+        {
+            System.Threading.Thread.Sleep(10);
+            return guid;
+        }
+
+        public void SetGuid(string guid)
         {
             throw new Exception("error");
-            System.Threading.Thread.Sleep(10);
-            return DateTime.Now.ToString();
         }
     }
 }

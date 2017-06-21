@@ -32,109 +32,88 @@ namespace Thrift.ClientWin
             int test_th = int.Parse(ConfigurationManager.AppSettings["test_th"]);
             int test_sleep = int.Parse(ConfigurationManager.AppSettings["test_sleep"]);
 
-            while (_count++ < test_count)
+            //while (_count++ < test_count)
+            //{
+            //    System.Threading.Thread.Sleep(test_sleep);
+            //    try
+            //    {
+            using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
             {
-                System.Threading.Thread.Sleep(test_sleep);
-                try
+                string guid = System.Guid.NewGuid().ToString();
+                var guid2 = svc.Client.GetGuid(guid);
+                if (guid != guid2)
+                    Console.WriteLine($"{guid} != {guid2}");
+                if (test_console == 1)
+                    Console.WriteLine("true:" + DateTime.Now);
+                LogHelper.Fatal("true");
+                //        Console.WriteLine("true:"+DateTime.Now.ToString());
+            }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        LogHelper.Error("", ex);
+            //        Console.WriteLine("false:" + ex.StackTrace);
+            //    }
+            //}
+
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var threads = new List<Thread>();
+            for (int i = 0; i < test_th; i++)
+            {
+                threads.Add(new Thread(() =>
                 {
-                    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
-                {
-                    string guid = System.Guid.NewGuid().ToString();
-                    var guid2 = svc.Client.get2(guid);
-                    if (guid != guid2)
-                        Console.WriteLine($"{guid} != {guid2}");
-                    if (test_console == 1)
-                        Console.WriteLine("true:" + DateTime.Now);
-                    LogHelper.Fatal("true");
-                        //        Console.WriteLine("true:"+DateTime.Now.ToString());
+                    while (_count++ < test_count)
+                    {
+                        System.Threading.Thread.Sleep(test_sleep);
+                        try
+                        {
+
+                            using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
+                            {
+                                string guid = System.Guid.NewGuid().ToString();
+                                var guid2 = svc.Client.GetGuid(guid);
+                                if (guid != guid2)
+                                    Console.WriteLine($"{guid} != {guid2}");
+                                if (test_console == 1)
+                                    Console.WriteLine("true:" + DateTime.Now);
+
+                                //        Console.WriteLine("true:"+DateTime.Now.ToString());
+                            }
+
+                            //using (TTransport transport = new TSocket("192.168.1.179", 9021))
+                            //using (TProtocol protocol = new TBinaryProtocol(transport))
+                            //using (ThriftTestThrift.Client client = new ThriftTestThrift.Client(protocol))
+                            //{
+                            //    transport.Open();
+                            //    string guid = System.Guid.NewGuid().ToString();
+                            //    var guid2 = client.get2(guid);
+                            //    if (guid != guid2)
+                            //        Console.WriteLine($"{guid} != {guid2}");
+                            //}
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error("", ex);
+                            Console.WriteLine("false:" + ex.StackTrace);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogHelper.Error("", ex);
-                    Console.WriteLine("false:" + ex.StackTrace);
-                }
+                }));
             }
 
-            ////预热连接池
-            //using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
-            //{
-            //    string guid = System.Guid.NewGuid().ToString();
-            //    var guid2 = svc.Client.get2(guid);
-            //    if (guid != guid2)
-            //        Console.WriteLine($"{guid} != {guid2}");
-            //}
+            for (int i = 0; i < test_th; i++)
+            {
+                System.Threading.Thread.Sleep(100);
+                threads[i].Start();
+            }
 
+            while (_count < test_count) ;
+            stopwatch.Stop();
 
-
-
-            //var stopwatch = new Stopwatch();
-            //stopwatch.Start();
-
-            //var threads = new List<Thread>();
-            //for (int i = 0; i < test_th; i++)
-            //{
-            //    threads.Add(new Thread(() =>
-            //    {
-            //        while (_count++ < test_count)
-            //        {
-            //            System.Threading.Thread.Sleep(test_sleep);
-            //            try
-            //            {
-            //                //  {
-            //                //      string guid = System.Guid.NewGuid().ToString();
-
-            //                //      var guid2 = RequestHttpData("http://127.0.0.1:1005/1.aspx?sleep=10&msg=" + guid,"GET");
-            //                ////      var guid2 = HttpGet("http://127.0.0.1:1005/1.aspx?sleep=10&msg=" + guid).Result;
-
-            //                //      if (guid != guid2)
-            //                //          Console.WriteLine($"{guid} != {guid2}");
-
-            //                //  }
-
-            //                using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
-            //                {
-            //                    string guid = System.Guid.NewGuid().ToString();
-            //                    var guid2 = svc.Client.get2(guid);
-            //                    if (guid != guid2)
-            //                        Console.WriteLine($"{guid} != {guid2}");
-            //                    if (test_console == 1)
-            //                        Console.WriteLine("true:" + DateTime.Now);
-            //                    LogHelper.Fatal("true");
-            //                    //        Console.WriteLine("true:"+DateTime.Now.ToString());
-            //                }
-
-            //                //using (TTransport transport = new TSocket("192.168.1.179", 9021))
-            //                //using (TProtocol protocol = new TBinaryProtocol(transport))
-            //                //using (ThriftTestThrift.Client client = new ThriftTestThrift.Client(protocol))
-            //                //{
-            //                //    transport.Open();
-            //                //    string guid = System.Guid.NewGuid().ToString();
-            //                //    var guid2 = client.get2(guid);
-            //                //    if (guid != guid2)
-            //                //        Console.WriteLine($"{guid} != {guid2}");
-            //                //}
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                LogHelper.Error("", ex);
-            //                Console.WriteLine("false:" + ex.StackTrace);
-            //            }
-            //        }
-            //    }));
-            //}
-
-            //for (int i = 0; i < test_th; i++)
-            //{
-            //    System.Threading.Thread.Sleep(100);
-            //    threads[i].Start();
-            //}
-
-            //while (_count < test_count) ;
-            //stopwatch.Stop();
-
-            //Console.WriteLine(stopwatch.ElapsedMilliseconds);
-            //Console.WriteLine("over:" + _count);
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("over:" + _count);
 
 
             Console.ReadLine();

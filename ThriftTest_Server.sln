@@ -13,28 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thrift.IDLHelp", "Thrift.ID
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thrift.Service", "Thrift.Service\Thrift.Service.csproj", "{64EA89B6-A3D5-4DD6-ABA1-30514273173A}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Thrift.WebSite", "Thrift.WebSite\", "{105C463E-9ACD-4E5D-A486-68A0D1070D06}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5.2"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_55197"
-		Debug.AspNetCompiler.PhysicalPath = "Thrift.WebSite\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55197\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_55197"
-		Release.AspNetCompiler.PhysicalPath = "Thrift.WebSite\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_55197\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "55197"
-		SlnRelativePath = "Thrift.WebSite\"
-		DefaultWebSiteLanguage = "Visual C#"
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,10 +39,6 @@ Global
 		{64EA89B6-A3D5-4DD6-ABA1-30514273173A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64EA89B6-A3D5-4DD6-ABA1-30514273173A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64EA89B6-A3D5-4DD6-ABA1-30514273173A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{105C463E-9ACD-4E5D-A486-68A0D1070D06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{105C463E-9ACD-4E5D-A486-68A0D1070D06}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{105C463E-9ACD-4E5D-A486-68A0D1070D06}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{105C463E-9ACD-4E5D-A486-68A0D1070D06}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
