@@ -21,7 +21,7 @@ namespace Thrift.Server
         private ZooKeeper _zk;
         private List<ACL> _zk_Acl;
 
-        Thread _threadStart;
+        //Thread _threadStart;
 
         private static object lockHelp = new object();
 
@@ -38,7 +38,7 @@ namespace Thrift.Server
                 if (_host == "")
                     throw new Exception("当前服务IP地址不能为空");
             }
-            _threadStart = null;
+            //_threadStart = null;
         }
 
         public void Logout()
@@ -57,11 +57,11 @@ namespace Thrift.Server
                     System.GC.Collect();
                 }
 
-                if (_threadStart != null)
-                {
-                    _threadStart.Abort();
-                    _threadStart = null;
-                }
+                //if (_threadStart != null)
+                //{
+                //    _threadStart.Abort();
+                //    _threadStart = null;
+                //}
 
                 Start();
             }
@@ -69,8 +69,8 @@ namespace Thrift.Server
 
         public void Start()
         {
-            _threadStart = new Thread(() =>
-        {
+        //    _threadStart = new Thread(() =>
+        //{
             while (true)
             {
                 if (Regedit())
@@ -78,8 +78,8 @@ namespace Thrift.Server
 
                 System.Threading.Thread.Sleep(_service.ZookeeperConfig.ConnectInterval);
             }
-        });
-            _threadStart.Start();
+        //});
+        //    _threadStart.Start();
         }
 
         private bool Regedit()

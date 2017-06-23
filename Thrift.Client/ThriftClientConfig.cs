@@ -140,6 +140,8 @@ namespace Thrift.Client
                       _updateHostDelegate();
               });
 
+            ThriftLog.Info("WatchServer :" + zk + ":" + znode + ":" + isRegister);
+
             //        System.Threading.Thread.Sleep(10000);
             //    }
             //}).Start();
