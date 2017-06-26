@@ -34,7 +34,6 @@ namespace Thrift.ClientWin
 
             while (_count++ < test_count)
             {
-                System.Threading.Thread.Sleep(test_sleep);
                 try
                 {
                     using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClient("ThriftTestThrift"))
@@ -54,6 +53,7 @@ namespace Thrift.ClientWin
                     LogHelper.Error("", ex);
                     Console.WriteLine("false:");
                 }
+                System.Threading.Thread.Sleep(test_sleep);
             }
 
             Console.Read();

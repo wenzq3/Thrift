@@ -98,7 +98,17 @@ namespace Thrift.Client
             try
             {
                 if (_zk == null)
+                {
                     _zk = new ZooKeeper(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, this);
+ 
+                    int count = 0;
+                    while (_zk.getState() != ZooKeeper.States.CONNECTED)
+                    {
+                        if (count++ > 50)
+                            throw new Exception("ZooKeeper 连接失败");
+                        System.Threading.Thread.Sleep(100);
+                    }
+                }
 
                 _defaultHost = service.Host;
                 var children = _zk.getChildrenAsync(service.ZookeeperConfig.NodeParent, this).Result.Children;

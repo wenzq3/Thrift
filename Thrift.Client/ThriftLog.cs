@@ -12,7 +12,7 @@ namespace Thrift.Client
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ThriftLog));
 
-        private static bool _log = false;
+        private static bool _log = true;
 
         public static Action<string> _eventInfo = null;
         public static Action<string> _eventError = null;

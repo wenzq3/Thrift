@@ -40,7 +40,7 @@ namespace Thrift.ServiceWin
             //统计方法异常
             Thrift.Server.Server._funcError = (x, y, z) =>
             {
-             Console.WriteLine($"执行方法异常：{x}({JsonSerializer(y)})  异常:{z.Message}");
+                Console.WriteLine($"执行方法异常：{x}({JsonSerializer(y)})  异常:{z.Message}");
             };
 
 

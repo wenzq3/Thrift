@@ -62,7 +62,17 @@ namespace Thrift.Server
         private bool Regedit()
         {
             if (_zk == null)
+            {
                 _zk = new ZooKeeper(_service.ZookeeperConfig.Host, _service.ZookeeperConfig.SessionTimeout, this);
+
+                int count = 0;
+                while (_zk.getState() != ZooKeeper.States.CONNECTED)
+                {
+                    if (count++ > 50)
+                        throw new Exception("ZooKeeper 连接失败");
+                    System.Threading.Thread.Sleep(100);
+                }
+            }
 
             var zNode = $"{_service.ZookeeperConfig.NodeParent}/{_host}:{_service.Port}-{_service.Weight}";
 
