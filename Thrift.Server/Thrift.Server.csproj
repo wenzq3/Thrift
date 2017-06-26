@@ -68,7 +68,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\ServerEventHandler.cs" />
     <Compile Include="Common\BaseProcessor.cs" />
     <Compile Include="Common\IpLimit.cs" />
     <Compile Include="Config\Service.cs" />
