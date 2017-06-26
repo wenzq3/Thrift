@@ -9,12 +9,12 @@ using Thrift.Test.Entity;
 
 namespace Thrift.Test
 {
-    public interface IGameService
+    public interface ITestService
     {
         string GetGuid(string guid);
 
         void SetGuid(string guid);
 
-        GameInfoThrift GetGameInfo();
+        TestInfoThrift GetTestInfo();
     }
 }

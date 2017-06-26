@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Thrift.Test.Entity
 {
-    public class GameInfoThrift : ThriftResultBase
+    public class TestInfoThrift : ThriftResultBase
     {
-        public GameInfo GameID { get; set; }
+        public TestInfo Data { get; set; }
     }
 }

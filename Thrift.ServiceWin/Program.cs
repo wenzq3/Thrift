@@ -19,8 +19,7 @@ namespace Thrift.ServiceWin
             //生成使用代码
             //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
             //Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
-            //////help.Create(filePath, typeof(Thrift.Test.IGameService2));
-            //help.Create(filePath, typeof(Thrift.Test.IGameService), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
+            //help.Create(filePath, typeof(Thrift.Test.ITestService), "Thrift.Test.Thrift", "ThriftTestThrift", "2.0.0");
 
             ////help.AnalyzeIDL(@"f:\doc\ToPSvr.thrift", @"f:\qvc\", "Tcy.ToPSvr.Thrift", "1.0.1");
             //Console.ReadLine();

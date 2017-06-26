@@ -48,12 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entity\GameInfo.cs" />
-    <Compile Include="Entity\GameInfoThrift.cs" />
+    <Compile Include="Entity\TestInfo.cs" />
+    <Compile Include="Entity\TestInfoThrift.cs" />
     <Compile Include="Entity\ThriftResultBase.cs" />
-    <Compile Include="GameService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IGameService.cs" />
+    <Compile Include="ITestService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Thrift.IDLHelp\Thrift.IDLHelp.csproj">

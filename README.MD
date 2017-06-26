@@ -17,7 +17,7 @@
 
 >//Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
 
->//help.Create(filePath, typeof(Thrift.Test.IGameService), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
+>//help.Create(filePath, typeof(Thrift.Test.ITestService), "Thrift.Test.Thrift", "ThriftTestThrift", "1.2.0");
 >
 > 
 

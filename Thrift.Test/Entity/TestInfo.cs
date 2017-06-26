@@ -7,10 +7,11 @@ using Thrift.IDLHelp;
 
 namespace Thrift.Test.Entity
 {
-    public class GameInfo
+    public class TestInfo
     {
-        public int GameID { get; set; }
-        public string GameName { get; set; }
+        public int TestID { get; set; }
+        public string TestName { get; set; }
         public List<int> Icon { get; set; }
     }
 }
+

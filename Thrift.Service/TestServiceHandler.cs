@@ -9,16 +9,16 @@ using Thrift.Test.Thrift;
 
 namespace Thrift.Service
 {
-    public class GameServiceHandler : MarshalByRefObject, ThriftTestThrift.Iface
+    public class TestServiceHandler : MarshalByRefObject, ThriftTestThrift.Iface
     {
 
-        public GameServiceHandler()
+        public TestServiceHandler()
         {
         }
 
-        public GameInfoThrift GetGameInfo()
+        public TestInfoThrift GetTestInfo()
         {
-            return new GameInfoThrift() { };
+            return new TestInfoThrift() { };
         }
 
         public string GetGuid(string guid)
