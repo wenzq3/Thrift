@@ -32,14 +32,11 @@ namespace Thrift.Client
         {
             _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool);
 
-            if (_config == null)
-                throw new Exception($"{sectionName} 结点 {serviceName} 不存在");
+            if (_config.ServiceConfig.IncrementalConnections < 0) throw new Exception("每次增长连接数不能小于0");
+            if (_config.ServiceConfig.MinConnectionsNum < 0) throw new Exception("最小连接池不能小于0");
+            if (_config.ServiceConfig.MinConnectionsNum > _config.ServiceConfig.MaxConnectionsNum) throw new Exception("最大连接池不能小于最小连接池");
 
-            if (_config.Config.IncrementalConnections < 0) throw new Exception("每次增长连接数不能小于0");
-            if (_config.Config.MinConnectionsNum < 0) throw new Exception("最小连接池不能小于0");
-            if (_config.Config.MinConnectionsNum > _config.Config.MaxConnectionsNum) throw new Exception("最大连接池不能小于最小连接池");
-
-            CreateConnections(_config.Config.MinConnectionsNum);
+            CreateConnections(_config.ServiceConfig.MinConnectionsNum);
         }
 
         /// <summary>
@@ -56,7 +53,7 @@ namespace Thrift.Client
                     if (!_clients.TryDequeue(out client))
                         break;
 
-                    if (!_config.Config.Host.Contains(client.Host))
+                    if (!_config.ServiceConfig.Host.Contains(client.Host))
                     {
                         ThriftLog.Info("删除不可用的连接：" + client.Host);
                         client.Destroy(); //删除不可用的连接
@@ -72,7 +69,7 @@ namespace Thrift.Client
                 _hashErrorPop = new HashSet<string>();
                 foreach (var item in _listPop)
                 {
-                    if (!_config.Config.Host.Contains(item.Value))
+                    if (!_config.ServiceConfig.Host.Contains(item.Value))
                         _hashErrorPop.Add(item.Key);
                 }
             }
@@ -88,10 +85,10 @@ namespace Thrift.Client
             {
                 for (int i = 0; i < num; ++i)
                 {
-                    if (_count >= _config.Config.MaxConnectionsNum)
+                    if (_count >= _config.ServiceConfig.MaxConnectionsNum)
                         return;
 
-                    var item = ThriftClientFactory.Create(_config.Config, true);
+                    var item = ThriftClientFactory.Create(_config.ServiceConfig, true);
                     if (item == null) return;
                     var token = System.Guid.NewGuid().ToString();
                     var client = new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3, token);
@@ -123,7 +120,7 @@ namespace Thrift.Client
 
                 if (client != null) return client;
 
-                if (count >= _config.Config.PoolTimeout / 10) //获取可用连接超时
+                if (count >= _config.ServiceConfig.PoolTimeout / 10) //获取可用连接超时
                     return null;
             }
         }
@@ -160,9 +157,9 @@ namespace Thrift.Client
             }
 
             //超过最大空闲
-            if (_clients.Count() >= _config.Config.MaxConnectionsIdle)
+            if (_clients.Count() >= _config.ServiceConfig.MaxConnectionsIdle)
             {
-                ThriftLog.Info($"当前连接数：{_count},超过最大空闲数：{_config.Config.MaxConnectionsIdle}，如果此条信息过多，请增加最大空闲数");
+                ThriftLog.Info($"当前连接数：{_count},超过最大空闲数：{_config.ServiceConfig.MaxConnectionsIdle}，如果此条信息过多，请增加最大空闲数");
                 try
                 {
                     client.Item1.Close();
@@ -211,7 +208,7 @@ namespace Thrift.Client
             }
 
             if (create)
-                CreateConnections(_config.Config.IncrementalConnections);
+                CreateConnections(_config.ServiceConfig.IncrementalConnections);
             return null;
         }
     }

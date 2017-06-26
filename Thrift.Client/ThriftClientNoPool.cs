@@ -28,25 +28,22 @@ namespace Thrift.Client
         {
             _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool);
 
-            if (_config == null)
-                throw new Exception($"{sectionName} 结点 {serviceName} 不存在");
-
-            _host = _config.Config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            _host = _config.ServiceConfig.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             _hostCount = _host.Length;
             _hostIndex = 0;
 
-            if (_config.Config.IncrementalConnections < 0) throw new Exception("每次增长连接数不能小于0");
-            if (_config.Config.MinConnectionsNum < 0) throw new Exception("最小连接池不能小于0");
-            if (_config.Config.MinConnectionsNum > _config.Config.MaxConnectionsNum) throw new Exception("最大连接池不能小于最小连接池");
+            if (_config.ServiceConfig.IncrementalConnections < 0) throw new Exception("每次增长连接数不能小于0");
+            if (_config.ServiceConfig.MinConnectionsNum < 0) throw new Exception("最小连接池不能小于0");
+            if (_config.ServiceConfig.MinConnectionsNum > _config.ServiceConfig.MaxConnectionsNum) throw new Exception("最大连接池不能小于最小连接池");
         }
 
         /// <summary>
-        /// 更新连接池，删除不可用的连接
+        /// 更新连接池
         /// </summary>
         public void UpdatePool()
         {
-            ThriftLog.Info("UpdatePool:" + _config.Config.Host);
-            _host = _config.Config.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            ThriftLog.Info("UpdatePool:" + _config.ServiceConfig.Host);
+            _host = _config.ServiceConfig.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             _hostCount = _host.Length;
             _hostIndex = 0;
         }
@@ -57,17 +54,17 @@ namespace Thrift.Client
         /// <returns></returns>
         public ThriftClient<T> Pop()
         {
-            if (_count >= _config.Config.MaxConnectionsNum)
+            if (_count >= _config.ServiceConfig.MaxConnectionsNum)
             {
                 ThriftLog.Error("连接池达到最大数:" + _count);
                 return null;
             }
 
-            Console.WriteLine(_config.Config.Host);
+            Console.WriteLine(_config.ServiceConfig.Host);
 
-            _config.Config.Host = _host[_hostIndex % _hostCount];
+            _config.ServiceConfig.Host = _host[_hostIndex % _hostCount];
 
-            var item = ThriftClientFactory.Create(_config.Config, false);
+            var item = ThriftClientFactory.Create(_config.ServiceConfig, false);
             if (item == null) return null;
             var client = new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3, "");
 

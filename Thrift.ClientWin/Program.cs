@@ -35,26 +35,28 @@ namespace Thrift.ClientWin
             //while (_count++ < test_count)
             //{
             //    System.Threading.Thread.Sleep(test_sleep);
-            //    try
-            //    {
-            using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
-            {
-                string guid = System.Guid.NewGuid().ToString();
-                var guid2 = svc.Client.GetGuid(guid);
-                if (guid != guid2)
-                    Console.WriteLine($"{guid} != {guid2}");
-                if (test_console == 1)
-                    Console.WriteLine("true:" + DateTime.Now);
-                LogHelper.Fatal("true");
-                //        Console.WriteLine("true:"+DateTime.Now.ToString());
-            }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        LogHelper.Error("", ex);
-            //        Console.WriteLine("false:" + ex.StackTrace);
-            //    }
+                try
+                {
+                    using (var svc = ThriftClientManager<ThriftTestThrift.Client>.GetClientNoPool("ThriftTestThrift"))
+                    {
+                        string guid = System.Guid.NewGuid().ToString();
+                        var guid2 = svc.Client.GetGuid(guid);
+                        if (guid != guid2)
+                            Console.WriteLine($"{guid} != {guid2}");
+                        if (test_console == 1)
+                            Console.WriteLine("true:" + DateTime.Now);
+                        LogHelper.Fatal("true");
+                        //        Console.WriteLine("true:"+DateTime.Now.ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Error("", ex);
+                    Console.WriteLine("false:" + ex.StackTrace);
+                }
             //}
+
+            Console.Read();
 
 
             var stopwatch = new Stopwatch();

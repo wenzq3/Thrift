@@ -12,13 +12,12 @@ namespace Thrift.Client
 {
     public class ThriftClientConfig : IWatcher
     {
-        private Config.Service _config;
+        private Config.Service _serviceConfig;
         private string _sectionName, _serviceName;
         private string _configPath;
         private ZooKeeper _zk;
 
         private string _defaultHost = "";//默认地址
-
         private Action _updateHostDelegate = null; //服务主机更改通知
 
         public ThriftClientConfig(string sectionName, string serviceName, Action updateHostDelegate)
@@ -26,7 +25,7 @@ namespace Thrift.Client
             _configPath = ConfigurationManager.AppSettings["ThriftClientConfigPath"];
             _sectionName = sectionName;
             _serviceName = serviceName;
-            _config = GetConfig(true);
+            _serviceConfig = GetServiceConfig(true);
             _updateHostDelegate = updateHostDelegate;
         }
 
@@ -34,9 +33,9 @@ namespace Thrift.Client
         /// 配置信息
         /// </summary>
         /// <returns></returns>
-        public Config.Service Config
+        public Config.Service ServiceConfig
         {
-            get { return _config; }
+            get { return _serviceConfig; }
         }
 
         /// <summary>
@@ -45,7 +44,7 @@ namespace Thrift.Client
         /// <param name="sectionName"></param>
         /// <param name="serviceName"></param>
         /// <returns></returns>
-        private Config.Service GetConfig(bool watch)
+        private Config.Service GetServiceConfig(bool isFirst)
         {
             if (string.IsNullOrEmpty(_sectionName))
                 throw new ArgumentNullException("sectionName");
@@ -72,7 +71,7 @@ namespace Thrift.Client
                 if (service.ZookeeperConfig == null || service.ZookeeperConfig.Host == "")
                     return service;
 
-                bool isConnZk = SetServerConfig(service, watch);
+                bool isConnZk = SetServerConfig(service, isFirst);
                 if (!isConnZk)
                 {
                     new System.Threading.Thread(() =>
@@ -80,7 +79,7 @@ namespace Thrift.Client
                         while (!isConnZk)
                         {
                             System.Threading.Thread.Sleep(service.ZookeeperConfig.ConnectInterval);
-                            isConnZk = SetServerConfig(service, watch);
+                            isConnZk = SetServerConfig(service, isFirst);
                         }
                     }).Start();
                 }
@@ -91,7 +90,7 @@ namespace Thrift.Client
             return null;
         }
 
-        private bool SetServerConfig(Config.Service service, bool watch)
+        private bool SetServerConfig(Config.Service service, bool isFirst)
         {
             try
             {
@@ -106,8 +105,13 @@ namespace Thrift.Client
                 if (children != null && children.Count > 0)
                     service.Host = string.Join(",", children);
 
-                if (watch)
-                    WatchServer(_zk, service.ZookeeperConfig.NodeParent);
+                if (!isFirst) //首次连接，不需要执行更新方法。
+                {
+                    if (_updateHostDelegate != null)
+                        _updateHostDelegate();
+                }
+
+                WatchServer(_zk, service.ZookeeperConfig.NodeParent);
 
                 return true;
             }
@@ -123,28 +127,26 @@ namespace Thrift.Client
         /// </summary>
         private void WatchServer(ZooKeeper zk, string znode)
         {
-            //new System.Threading.Thread(() =>
-            //{
-            //    bool isRegister = false;
-            //    while (!isRegister)
-            //    {
             var isRegister = ZookeeperWatcherHelp.Register(zk, znode, null, (@event, nodeData) =>
               {
-                  var children = ZookeeperHelp.GetChildren(_zk, _config.ZookeeperConfig.NodeParent);
-                  if (children != null && children.Count > 0)
-                      _config.Host = string.Join(",", children);
-                  else
-                      _config.Host = _defaultHost;
+                  try
+                  {
+                      var children = ZookeeperHelp.GetChildren(_zk, _serviceConfig.ZookeeperConfig.NodeParent);
+                      if (children != null && children.Count > 0)
+                          _serviceConfig.Host = string.Join(",", children);
+                      else
+                          _serviceConfig.Host = _defaultHost;
 
-                  if (_updateHostDelegate != null)
-                      _updateHostDelegate();
+                      if (_updateHostDelegate != null)
+                          _updateHostDelegate();
+                  }
+                  catch (Exception ex)
+                  {
+                      ThriftLog.Error("GetChildren:" + ex.Message + ex.StackTrace);
+                  }
               });
 
             ThriftLog.Info("WatchServer :" + zk + ":" + znode + ":" + isRegister);
-
-            //        System.Threading.Thread.Sleep(10000);
-            //    }
-            //}).Start();
         }
 
         public void Process(WatchedEvent @event)
@@ -153,8 +155,9 @@ namespace Thrift.Client
             if (@event.State == KeeperState.Expired)
             {
                 ThriftLog.Info(" 重新连接zk");
+                //_zk.Dispose();
                 _zk = null;
-                _config = GetConfig(true);
+                _serviceConfig = GetServiceConfig(false);
             }
         }
     }

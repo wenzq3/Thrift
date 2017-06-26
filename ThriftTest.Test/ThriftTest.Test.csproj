@@ -54,10 +54,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Delegates.cs" />
+    <Compile Include="Implementation\NodeEntry.cs" />
+    <Compile Include="Implementation\ZookeeperClient.cs" />
+    <Compile Include="IZookeeperClient.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ZookeeperClientExtensions.cs" />
+    <Compile Include="ZookeeperClientOptions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

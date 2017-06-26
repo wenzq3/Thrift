@@ -96,19 +96,11 @@ namespace Thrift.Client
 
         public static List<string> GetChildren(ZooKeeper zk, string znode)
         {
-            try
-            {
-                var nodeData = zk.GetChildren(znode, false);
-                if (nodeData != null)
-                    return nodeData.ToList();
-                else
-                    return null;
-            }
-            catch (Exception ex)
-            {
-                ThriftLog.Error(ex.Message + ex.StackTrace);
+            var nodeData = zk.GetChildren(znode, false);
+            if (nodeData != null)
+                return nodeData.ToList();
+            else
                 return null;
-            }
         }
     }
 }
