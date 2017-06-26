@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Thrift.Protocol;
 using Thrift.Transport;
-using ZooKeeperNet;
 
 namespace Thrift.Client
 {

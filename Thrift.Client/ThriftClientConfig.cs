@@ -1,4 +1,5 @@
-﻿using System;
+﻿using org.apache.zookeeper;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -6,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Thrift.Client.Config;
-using ZooKeeperNet;
+using static org.apache.zookeeper.Watcher.Event;
 
 namespace Thrift.Client
 {
-    public class ThriftClientConfig : IWatcher
+    public class ThriftClientConfig : Watcher
     {
         private Config.Service _serviceConfig;
         private string _sectionName, _serviceName;
@@ -19,13 +20,14 @@ namespace Thrift.Client
 
         private string _defaultHost = "";//默认地址
         private Action _updateHostDelegate = null; //服务主机更改通知
+        private bool _firstGetConfig = true;//第一次加载
 
         public ThriftClientConfig(string sectionName, string serviceName, Action updateHostDelegate)
         {
             _configPath = ConfigurationManager.AppSettings["ThriftClientConfigPath"];
             _sectionName = sectionName;
             _serviceName = serviceName;
-            _serviceConfig = GetServiceConfig(true);
+            _serviceConfig = GetServiceConfig();
             _updateHostDelegate = updateHostDelegate;
         }
 
@@ -44,7 +46,7 @@ namespace Thrift.Client
         /// <param name="sectionName"></param>
         /// <param name="serviceName"></param>
         /// <returns></returns>
-        private Config.Service GetServiceConfig(bool isFirst)
+        private Config.Service GetServiceConfig()
         {
             if (string.IsNullOrEmpty(_sectionName))
                 throw new ArgumentNullException("sectionName");
@@ -71,7 +73,8 @@ namespace Thrift.Client
                 if (service.ZookeeperConfig == null || service.ZookeeperConfig.Host == "")
                     return service;
 
-                bool isConnZk = SetServerConfig(service, isFirst);
+                bool isConnZk = SetServerConfig(service);
+                _firstGetConfig = false;
                 if (!isConnZk)
                 {
                     new System.Threading.Thread(() =>
@@ -79,7 +82,7 @@ namespace Thrift.Client
                         while (!isConnZk)
                         {
                             System.Threading.Thread.Sleep(service.ZookeeperConfig.ConnectInterval);
-                            isConnZk = SetServerConfig(service, isFirst);
+                            isConnZk = SetServerConfig(service);
                         }
                     }).Start();
                 }
@@ -90,29 +93,23 @@ namespace Thrift.Client
             return null;
         }
 
-        private bool SetServerConfig(Config.Service service, bool isFirst)
+        private bool SetServerConfig(Config.Service service)
         {
             try
             {
                 if (_zk == null)
-                    _zk = ZookeeperHelp.CreateClient(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, this, "");
-
-                if (_zk == null)
-                    throw new Exception($"Zookeeper服务 {service.ZookeeperConfig.Host} 连接失败");
+                    _zk = new ZooKeeper(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, this);
 
                 _defaultHost = service.Host;
-                var children = ZookeeperHelp.GetChildren(_zk, service.ZookeeperConfig.NodeParent);
+                var children = _zk.getChildrenAsync(service.ZookeeperConfig.NodeParent, this).Result.Children;
                 if (children != null && children.Count > 0)
                     service.Host = string.Join(",", children);
 
-                if (!isFirst) //首次连接，不需要执行更新方法。
+                if (!_firstGetConfig) //首次连接，不需要执行更新方法。
                 {
                     if (_updateHostDelegate != null)
                         _updateHostDelegate();
                 }
-
-                WatchServer(_zk, service.ZookeeperConfig.NodeParent);
-
                 return true;
             }
             catch (Exception ex)
@@ -122,43 +119,43 @@ namespace Thrift.Client
             }
         }
 
-        /// <summary>
-        /// 监听服务注册
-        /// </summary>
-        private void WatchServer(ZooKeeper zk, string znode)
+        public override async Task process(WatchedEvent watchedEvent)
         {
-            var isRegister = ZookeeperWatcherHelp.Register(zk, znode, null, (@event, nodeData) =>
-              {
-                  try
-                  {
-                      var children = ZookeeperHelp.GetChildren(_zk, _serviceConfig.ZookeeperConfig.NodeParent);
-                      if (children != null && children.Count > 0)
-                          _serviceConfig.Host = string.Join(",", children);
-                      else
-                          _serviceConfig.Host = _defaultHost;
-
-                      if (_updateHostDelegate != null)
-                          _updateHostDelegate();
-                  }
-                  catch (Exception ex)
-                  {
-                      ThriftLog.Error("GetChildren:" + ex.Message + ex.StackTrace);
-                  }
-              });
-
-            ThriftLog.Info("WatchServer :" + zk + ":" + znode + ":" + isRegister);
-        }
-
-        public void Process(WatchedEvent @event)
-        {
-            ThriftLog.Info("WatchedEvent :" + @event.State.ToString());
-            if (@event.State == KeeperState.Expired)
+            Console.WriteLine("WatchedEvent:" + watchedEvent.getState().ToString() + ":" + watchedEvent.get_Type().ToString());
+            if (watchedEvent.getState() == KeeperState.Expired)
             {
                 ThriftLog.Info(" 重新连接zk");
-                //_zk.Dispose();
+                await _zk.closeAsync();
                 _zk = null;
-                _serviceConfig = GetServiceConfig(false);
+                _serviceConfig = GetServiceConfig();
+                return;
             }
+
+            try
+            {
+                if (watchedEvent.get_Type() == EventType.NodeChildrenChanged)
+                {
+                    var data = await _zk.getChildrenAsync(_serviceConfig.ZookeeperConfig.NodeParent, this);
+                    var children = data.Children;
+
+                    if (children != null && children.Count > 0)
+                        _serviceConfig.Host = string.Join(",", children);
+                    else
+                        _serviceConfig.Host = _defaultHost;
+
+                    if (_updateHostDelegate != null)
+                        _updateHostDelegate();
+                }
+            }
+            catch (Exception ex)
+            {
+                ThriftLog.Error(ex.Message + ex.StackTrace);
+                _zk = null;
+                _serviceConfig = GetServiceConfig();
+                ThriftLog.Info(" 重新连接zk2");
+            }
+
+            return;
         }
     }
 }

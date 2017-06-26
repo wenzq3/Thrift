@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Thrift.Protocol;
 using Thrift.Transport;
-using ZooKeeperNet;
+
 
 namespace Thrift.Client
 {
@@ -59,8 +59,6 @@ namespace Thrift.Client
                 ThriftLog.Error("连接池达到最大数:" + _count);
                 return null;
             }
-
-            Console.WriteLine(_config.ServiceConfig.Host);
 
             _config.ServiceConfig.Host = _host[_hostIndex % _hostCount];
 

@@ -1,5 +1,4 @@
-﻿using Org.Apache.Zookeeper.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -7,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Thrift.Server.Config;
-using ZooKeeperNet;
 
 namespace Thrift.Server
 {

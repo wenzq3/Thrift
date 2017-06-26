@@ -1,27 +1,26 @@
-﻿using Org.Apache.Zookeeper.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using ZooKeeperNet;
 using Thrift.Server.Config;
 using System.Threading;
+using org.apache.zookeeper;
+using static org.apache.zookeeper.Watcher.Event;
+using org.apache.zookeeper.data;
 
 namespace Thrift.Server
 {
     /// <summary>
     /// 自动注册服务
     /// </summary>
-    public class RegeditConfig : IWatcher
+    public class RegeditConfig : Watcher
     {
         private Service _service;
         private string _host;
         private ZooKeeper _zk;
         private List<ACL> _zk_Acl;
-
-        //Thread _threadStart;
 
         private static object lockHelp = new object();
 
@@ -29,7 +28,7 @@ namespace Thrift.Server
         {
             _zk = null;
             _service = service;
-            _zk_Acl = Ids.OPEN_ACL_UNSAFE;
+            _zk_Acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
             _host = _service.Host;
             if (string.IsNullOrEmpty(_host))
@@ -38,39 +37,19 @@ namespace Thrift.Server
                 if (_host == "")
                     throw new Exception("当前服务IP地址不能为空");
             }
-            //_threadStart = null;
         }
 
         public void Logout()
         {
             if (_zk != null)
-                _zk.Dispose();
-        }
-
-        public void ReStart()
-        {
-            lock (lockHelp)
             {
-                if (_zk != null)
-                {
-                    _zk = null;
-                    System.GC.Collect();
-                }
-
-                //if (_threadStart != null)
-                //{
-                //    _threadStart.Abort();
-                //    _threadStart = null;
-                //}
-
-                Start();
+                _zk.closeAsync();
+                _zk = null;
             }
         }
 
         public void Start()
         {
-        //    _threadStart = new Thread(() =>
-        //{
             while (true)
             {
                 if (Regedit())
@@ -78,19 +57,12 @@ namespace Thrift.Server
 
                 System.Threading.Thread.Sleep(_service.ZookeeperConfig.ConnectInterval);
             }
-        //});
-        //    _threadStart.Start();
         }
 
         private bool Regedit()
         {
-            _zk = ZookeeperHelp.CreateClient(_service.ZookeeperConfig.Host, _service.ZookeeperConfig.SessionTimeout, this, _service.ZookeeperConfig.Digest);
-
             if (_zk == null)
-            {
-                ThriftLog.Info($"Zookeeper服务 {_service.ZookeeperConfig.Host} 连接失败");
-                return false;
-            }
+                _zk = new ZooKeeper(_service.ZookeeperConfig.Host, _service.ZookeeperConfig.SessionTimeout, this);
 
             var zNode = $"{_service.ZookeeperConfig.NodeParent}/{_host}:{_service.Port}-{_service.Weight}";
 
@@ -117,13 +89,13 @@ namespace Thrift.Server
 
                 try
                 {
-                    var stat = _zk.Exists(zNode, true);
+                    var stat = _zk.existsAsync(zNode).Result;
                     if (stat == null)
                     {
                         if (zNode == "/ThriftServer") //thrift服务的根目录
-                            _zk.Create(zNode, new byte[0] { }, Ids.OPEN_ACL_UNSAFE, CreateMode.Persistent);
+                            _zk.createAsync(zNode, new byte[0] { }, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                         else
-                            _zk.Create(zNode, new byte[0] { }, _zk_Acl, CreateMode.Persistent);
+                            _zk.createAsync(zNode, new byte[0] { }, _zk_Acl, CreateMode.PERSISTENT);
                     }
                 }
                 catch (Exception ex)
@@ -144,44 +116,30 @@ namespace Thrift.Server
         {
             try
             {
-                _zk.Create(zNode, new byte[0] { }, _zk_Acl, CreateMode.Ephemeral);
-                ThriftLog.Info($"{zNode}节点注册完成 ");
+                var r = _zk.createAsync(zNode, new byte[0] { }, _zk_Acl, CreateMode.EPHEMERAL).Result;
+                ThriftLog.Info($"{zNode}节点注册完成");
                 return true;
-            }
-            catch (KeeperException.NodeExistsException ex)
-            {
-                ThriftLog.Info($"{zNode}节点已经存在 " + ex.Message);
-                System.Threading.Thread.Sleep(2000);
-                if (existsCount++ > 5)
-                {
-                    ThriftLog.Info($"{zNode}节点注册完成 ");
-                    return true;
-                }
-                else
-                    return RegeditNode(zNode, existsCount);
-            }
-            catch (KeeperException.SessionExpiredException ex)
-            {
-                ThriftLog.Info("SessionExpiredException 过期" + ex.Message);
-                return false;
             }
             catch (Exception ex)
             {
-                ThriftLog.Info("Regedit:" + ex.StackTrace);
+                ThriftLog.Info($"{zNode}节点注册失败：" + ex.StackTrace + ex.Message);
                 return false;
             }
         }
 
-        public void Process(WatchedEvent @event)
+        public override async Task process(WatchedEvent watchedEvent)
         {
-            ThriftLog.Info("WatchedEvent :" + @event.State.ToString());
-            //     if (@event.State == KeeperState.Disconnected || @event.State == KeeperState.Expired)
-            if (@event.State == KeeperState.Expired)
+            Console.WriteLine("WatchedEvent:" + watchedEvent.getState().ToString() + ":" + watchedEvent.get_Type().ToString());
+            if (watchedEvent.getState() == KeeperState.Expired)
             {
                 ThriftLog.Info("重新注册zk");
-                ReStart();
+                await _zk.closeAsync();
+                _zk = null;
+                Start();
             }
+            return;
         }
+
         /// <summary>
         /// 获取本地IP地址信息
         /// </summary>

@@ -56,8 +56,8 @@
       <HintPath>..\packages\ApacheThrift.0.9.3\lib\Thrift.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ZooKeeperNet, Version=3.4.6.1, Culture=neutral, PublicKeyToken=fefd2c046da35b56, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZooKeeper.Net.3.4.6.2\lib\net40\ZooKeeperNet.dll</HintPath>
+    <Reference Include="ZooKeeperNetEx, Version=3.4.9.4, Culture=neutral, PublicKeyToken=42cd15de36f9b993, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZooKeeperNetEx.3.4.9.4\lib\net45\ZooKeeperNetEx.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -66,8 +66,6 @@
     <Compile Include="Config\ServiceCollection.cs" />
     <Compile Include="Config\ThriftConfigSection.cs" />
     <Compile Include="Config\ZookeeperConfig.cs" />
-    <Compile Include="Common\ZookeeperHelp.cs" />
-    <Compile Include="Common\ZookeeperWatcherHelp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThriftClient.cs" />
     <Compile Include="ThriftClientNoPool.cs" />
