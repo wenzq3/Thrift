@@ -12,6 +12,8 @@ namespace Thrift.Test.Entity
         public int TestID { get; set; }
         public string TestName { get; set; }
         public List<int> Icon { get; set; }
+
+
     }
 }
 

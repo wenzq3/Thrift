@@ -1,5 +1,4 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -44,6 +43,9 @@ namespace Thrift.Server
                     ExeConfigFilename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _configPath)
                 }, ConfigurationUserLevel.None).GetSection("thriftServer") as Config.ThriftConfigSection;
             }
+
+            if (config == null || config.Services == null)
+                throw new Exception("thrift服务配置不存在");
 
             foreach (Service service in config.Services)
             {

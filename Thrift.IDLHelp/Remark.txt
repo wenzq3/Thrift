@@ -1,3 +1,0 @@
-﻿            string filePath = "f:\\生成目录";
-            Thrift.IDLHelp.Help help = new Thrift.IDLHelp.Help();
-            Console.WriteLine(help.Create(filePath, typeof(Thrift.Test.IGameService)));
