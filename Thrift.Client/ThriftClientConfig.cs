@@ -18,12 +18,18 @@ namespace Thrift.Client
         private string _configPath;
         private ZooKeeper _zk;
 
+        private string _spaceName;
+        private string _className;
+
         private string _defaultHost = "";//默认地址
         private Action _updateHostDelegate = null; //服务主机更改通知
         private bool _firstGetConfig = true;//第一次加载
 
-        public ThriftClientConfig(string sectionName, string serviceName, Action updateHostDelegate)
+        public ThriftClientConfig(string sectionName, string serviceName, Action updateHostDelegate, string spaceName = "", string className = "")
         {
+            _spaceName = spaceName;
+            _className = className;
+
             _configPath = ConfigurationManager.AppSettings["ThriftClientConfigPath"];
             _sectionName = sectionName;
             _serviceName = serviceName;
@@ -65,10 +71,14 @@ namespace Thrift.Client
                 }, ConfigurationUserLevel.None).GetSection(_sectionName) as Config.ThriftConfigSection;
             }
 
-
             foreach (Config.Service service in config.Services)
             {
                 if (service.Name != _serviceName) continue;
+
+                if (string.IsNullOrEmpty(service.SpaceName))
+                    service.SpaceName = _spaceName;
+                if (string.IsNullOrEmpty(service.ClassName))
+                    service.ClassName = _className;
 
                 if (service.ZookeeperConfig == null || service.ZookeeperConfig.Host == "")
                     return service;
@@ -100,7 +110,7 @@ namespace Thrift.Client
                 if (_zk == null)
                 {
                     _zk = new ZooKeeper(service.ZookeeperConfig.Host, service.ZookeeperConfig.SessionTimeout, this);
- 
+
                     int count = 0;
                     while (_zk.getState() != ZooKeeper.States.CONNECTED)
                     {

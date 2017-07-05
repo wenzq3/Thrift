@@ -71,6 +71,7 @@
     <Compile Include="ThriftClientManager.cs" />
     <Compile Include="ThriftClientPool.cs" />
     <Compile Include="ThriftLog.cs" />
+    <Compile Include="ZookeeperLog.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

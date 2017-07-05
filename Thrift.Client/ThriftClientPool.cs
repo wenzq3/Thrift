@@ -30,7 +30,8 @@ namespace Thrift.Client
 
         public ThriftClientPool(string sectionName, string serviceName)
         {
-            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool);
+            var type = typeof(T);
+            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool, type.Namespace, type.ReflectedType.Name);
 
             if (_config.ServiceConfig.IncrementalConnections < 0) throw new Exception("每次增长连接数不能小于0");
             if (_config.ServiceConfig.MinConnectionsNum < 0) throw new Exception("最小连接池不能小于0");
@@ -88,7 +89,7 @@ namespace Thrift.Client
                     if (_count >= _config.ServiceConfig.MaxConnectionsNum)
                         return;
 
-                    var item = ThriftClientFactory.Create(_config.ServiceConfig, true);
+                    var item = ThriftClientFactory.Create(_config.ServiceConfig,true);
                     if (item == null) return;
                     var token = System.Guid.NewGuid().ToString();
                     var client = new ThriftClient<T>(Tuple.Create(item.Item1, item.Item2 as T), this, item.Item3, token);

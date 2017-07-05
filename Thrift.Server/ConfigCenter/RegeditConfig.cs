@@ -9,6 +9,7 @@ using System.Threading;
 using org.apache.zookeeper;
 using static org.apache.zookeeper.Watcher.Event;
 using org.apache.zookeeper.data;
+using System.Diagnostics;
 
 namespace Thrift.Server
 {
@@ -26,6 +27,10 @@ namespace Thrift.Server
 
         public RegeditConfig(Service service)
         {
+            ZooKeeper.CustomLogConsumer = new ZookeeperLog();
+            ZooKeeper.LogToFile = false;
+            ZooKeeper.LogToTrace = false;
+
             _zk = null;
             _service = service;
             _zk_Acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;

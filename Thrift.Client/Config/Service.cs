@@ -20,19 +20,21 @@ namespace Thrift.Client.Config
         /// <summary>
         /// 命名空间名称
         /// </summary>
-        [ConfigurationProperty("spaceName", IsRequired = true)]
+        [ConfigurationProperty("spaceName", IsRequired = false)]
         public string SpaceName
         {
             get { return (string)this["spaceName"]; }
+            set { this["spaceName"] = value; }
         }
 
         /// <summary>
         /// 实现类名称
         /// </summary>
-        [ConfigurationProperty("className", IsRequired = true)]
+        [ConfigurationProperty("className", IsRequired = false)]
         public string ClassName
         {
             get { return (string)this["className"]; }
+            set { this["className"] = value; }
         }
 
         /// <summary>

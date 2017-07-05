@@ -1,4 +1,5 @@
-﻿using System;
+﻿using org.apache.zookeeper;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,9 @@ namespace Thrift.Client
 
         static ThriftClientManager()
         {
+            ZooKeeper.CustomLogConsumer = new ZookeeperLog();
+            ZooKeeper.LogToFile = false;
+            ZooKeeper.LogToTrace = false;
         }
 
         static public ThriftClient<T> GetClient(string serviceName)

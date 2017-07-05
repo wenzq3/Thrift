@@ -11,10 +11,6 @@ namespace Thrift.Test
 {
     public interface ITestService
     {
-        string GetGuid(string guid);
-
-        void SetGuid(string guid);
-
         TestInfoThrift GetTestInfo();
     }
 }

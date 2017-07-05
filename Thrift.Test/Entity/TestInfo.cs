@@ -9,11 +9,9 @@ namespace Thrift.Test.Entity
 {
     public class TestInfo
     {
-        public int TestID { get; set; }
+        public int TestId { get; set; }
         public string TestName { get; set; }
         public List<int> Icon { get; set; }
-
-
     }
 }
 

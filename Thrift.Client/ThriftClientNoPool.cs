@@ -26,7 +26,8 @@ namespace Thrift.Client
 
         public ThriftClientNoPool(string sectionName, string serviceName)
         {
-            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool);
+            var type = typeof(T);
+            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool, type.Namespace, type.ReflectedType.Name);
 
             _host = _config.ServiceConfig.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             _hostCount = _host.Length;
@@ -59,6 +60,7 @@ namespace Thrift.Client
                 ThriftLog.Error("连接池达到最大数:" + _count);
                 return null;
             }
+            if (_hostCount == 0) return null;
 
             _config.ServiceConfig.Host = _host[_hostIndex % _hostCount];
 

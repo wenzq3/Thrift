@@ -64,6 +64,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameThrift\GameInfo.cs" />
+    <Compile Include="GameThrift\GameService.cs" />
+    <Compile Include="GameThrift\GameThriftHandler.cs" />
     <Compile Include="LogHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
