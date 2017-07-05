@@ -32,16 +32,19 @@ namespace Thrift.Client
         {
             if (string.IsNullOrEmpty(serviceName)) throw new ArgumentNullException("serviceName");
 
-            if (_ditPool.ContainsKey(serviceName))
-                return _ditPool[serviceName].Pop();
+            var type = typeof(T);
+            string key = $"{serviceName}_{type.Namespace}_{type.ReflectedType.Name}";
+
+            if (_ditPool.ContainsKey(key))
+                return _ditPool[key].Pop();
 
             lock (lockHp)
             {
-                if (_ditPool.ContainsKey(serviceName))
-                    return _ditPool[serviceName].Pop();
+                if (_ditPool.ContainsKey(key))
+                    return _ditPool[key].Pop();
 
-                _ditPool.Add(serviceName, new ThriftClientPool<T>(sectionName, serviceName));
-                return _ditPool[serviceName].Pop();
+                _ditPool.Add(key, new ThriftClientPool<T>(sectionName, serviceName, type.Namespace, type.ReflectedType.Name));
+                return _ditPool[key].Pop();
             }
         }
 
@@ -50,29 +53,24 @@ namespace Thrift.Client
             return GetClientNoPool("thriftClient", serviceName);
         }
 
-        static public ThriftClient<T> GetClientNoPool(string sectionName,string serviceName)
+        static public ThriftClient<T> GetClientNoPool(string sectionName, string serviceName)
         {
             if (string.IsNullOrEmpty(serviceName)) throw new ArgumentNullException("serviceName");
 
-            if (_ditNoPool.ContainsKey(serviceName))
-                return _ditNoPool[serviceName].Pop();
+            var type = typeof(T);
+            string key = $"{serviceName}_{type.Namespace}_{type.ReflectedType.Name}";
+
+            if (_ditNoPool.ContainsKey(key))
+                return _ditNoPool[key].Pop();
 
             lock (lockHp)
             {
-                if (_ditNoPool.ContainsKey(serviceName))
-                    return _ditNoPool[serviceName].Pop();
+                if (_ditNoPool.ContainsKey(key))
+                    return _ditNoPool[key].Pop();
 
-                _ditNoPool.Add(serviceName, new ThriftClientNoPool<T>(sectionName, serviceName));
-                return _ditNoPool[serviceName].Pop();
+                _ditNoPool.Add(key, new ThriftClientNoPool<T>(sectionName, serviceName, type.Namespace, type.ReflectedType.Name));
+                return _ditNoPool[key].Pop();
             }
         }
-
-        //using (TTransport transport = new TSocket("192.168.1.179", 9021))
-        //using (TProtocol protocol = new TBinaryProtocol(transport))
-        //using (GameRoomThrift.Client client = new GameRoomThrift.Client(protocol))
-        //{
-        //    transport.Open();
-
-        //}
     }
 }

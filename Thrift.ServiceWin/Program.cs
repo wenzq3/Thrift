@@ -21,10 +21,9 @@ namespace Thrift.ServiceWin
 
             ////生成使用代码
 
-            //string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
-            //IDLHelp.Help help = new IDLHelp.Help();
-            //help.Create(filePath, typeof(ITestService), "Thrift.Test.Thrift", "ThriftTestThrift", "2.0.0");
-
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "生成目录");
+            IDLHelp.Help help = new IDLHelp.Help();
+            help.Create(filePath, typeof(ITestService), "Thrift.Test.Thrift", "ThriftTestThrift", "2.0.0");
 
 
             //记录信息与错误日志
@@ -42,7 +41,7 @@ namespace Thrift.ServiceWin
             };
 
             Console.WriteLine("服务启动");
-            Thrift.Server.Server.Start();
+            Thrift.Server.Server.StartMult();
 
             Console.WriteLine("按做任意键关闭");
             Console.Read();

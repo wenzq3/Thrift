@@ -18,6 +18,24 @@ namespace Thrift.Server.Config
         }
 
         /// <summary>
+        /// thrift程序集
+        /// </summary>
+        [ConfigurationProperty("thriftAssembly", IsRequired = false, DefaultValue = "")]
+        public string ThriftAssembly
+        {
+            get { return (string)this["thriftAssembly"]; }
+        }
+
+        /// <summary>
+        /// Thrift实现的程序集
+        /// </summary>
+        [ConfigurationProperty("thriftImplAssembly", IsRequired = false, DefaultValue = "")]
+        public string ThriftImplAssembly
+        {
+            get { return (string)this["thriftImplAssembly"]; }
+        }
+
+        /// <summary>
         /// 实现dll
         /// </summary>
         [ConfigurationProperty("handlerType", IsRequired = true)]
@@ -25,7 +43,7 @@ namespace Thrift.Server.Config
         {
             get { return (string)this["handlerType"]; }
         }
-        
+
         /// <summary>
         /// 命名空间名称
         /// </summary>
@@ -47,7 +65,7 @@ namespace Thrift.Server.Config
         /// <summary>
         /// 程序集名称
         /// </summary>
-        [ConfigurationProperty("assemblyName", IsRequired = false,DefaultValue ="")]
+        [ConfigurationProperty("assemblyName", IsRequired = false, DefaultValue = "")]
         public string AssemblyName
         {
             get { return (string)this["assemblyName"]; }
@@ -91,10 +109,11 @@ namespace Thrift.Server.Config
         /// <summary>
         /// Port
         /// </summary>
-        [ConfigurationProperty("port", IsRequired = true)]
+        [ConfigurationProperty("port", IsRequired = false, DefaultValue = 0)]
         public int Port
         {
             get { return (int)this["port"]; }
+            set { this["port"] = value; }
         }
 
         /// <summary>

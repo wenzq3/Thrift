@@ -51,14 +51,13 @@ namespace Thrift.IDLHelp
         /// <returns></returns>
         public void Create(string filePath, Type type, string nSpace, string serviceName, string version = "")
         {
-            List<FunInfo> funs;
             var create = new IDLCreate_Name();
-            var idlcode = create.Create(type, out funs, nSpace, serviceName);
+            var idlcode = create.Create(type, nSpace, serviceName);
 
-            CreateFile(funs, idlcode, filePath, nSpace, version);
+            CreateFile( idlcode, filePath, nSpace, version);
         }
 
-        private void CreateFile(List<FunInfo> funs, Tuple<string, string, string> idlcode, string filePath, string nSpace, string version = "")
+        private void CreateFile(Tuple<string, string, string> idlcode, string filePath, string nSpace, string version = "")
         {
             var cmd = new ThriftCmd();
 
@@ -69,33 +68,6 @@ namespace Thrift.IDLHelp
             string idlpath = idlcode.Item1.Replace(".", "\\");
 
             string codePath = Path.Combine(filePath, guid, "Code", idlpath) + @"\*.cs";
-
-            //替换thrift生成的代码 
-            //foreach (var code in Directory.GetFiles(Path.Combine(filePath, guid, "Code", idlpath)))
-            //{
-            //    FileStream fs = new FileStream(code, FileMode.Open);//打开文件
-            //    StreamReader tr = new StreamReader(fs, Encoding.Default);
-
-            //    string str = tr.ReadToEnd();
-            //    tr.Close();
-            //    fs.Close();
-
-            //foreach (var fun in funs)
-            //{
-            //    if (fun.CanReturnNull)
-            //    {
-            //        Regex regex = new Regex("throw new TApplicationException\\(TApplicationException.ExceptionType.MissingResult, \"" + fun.FunName + " failed: unknown result\"\\);", RegexOptions.IgnoreCase);
-            //        str = regex.Replace(str, "return null;");
-            //    }
-            //}
-
-            //    fs = new FileStream(code, FileMode.Create);//创建文件，存在则覆盖
-            //    StreamWriter sw = new StreamWriter(fs);//写入
-
-            //    sw.Write(str);
-            //    sw.Close();
-            //    fs.Close();
-            //}
 
             string dllName = idlcode.Item1 + ".dll";
             string thriftdll = ThriftDLL.ResolvePath(Path.Combine(filePath, guid));
@@ -136,11 +108,10 @@ namespace Thrift.IDLHelp
         /// <returns></returns>
         public void CreateFullName(string filePath, Type type, string nSpace, string serviceName, string version = "")
         {
-            List<FunInfo> funs;
             var create = new IDLCreate_FullName();
-            var idlcode = create.Create(type, out funs, nSpace, serviceName);
+            var idlcode = create.Create(type, nSpace, serviceName);
 
-            CreateFile(funs, idlcode, filePath, nSpace, version);
+            CreateFile(idlcode, filePath, nSpace, version);
         }
 
 

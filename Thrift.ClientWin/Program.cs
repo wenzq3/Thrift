@@ -67,6 +67,7 @@ namespace Thrift.ClientWin
                 }
             }
 
+            Console.Read();
             int test_console = int.Parse(ConfigurationManager.AppSettings["test_console"]);
             int test_count = int.Parse(ConfigurationManager.AppSettings["test_count"]);
             int test_th = int.Parse(ConfigurationManager.AppSettings["test_th"]);

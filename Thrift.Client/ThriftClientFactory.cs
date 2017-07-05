@@ -52,15 +52,31 @@ namespace Thrift.Client
 
                 TTransport transport = new TSocket(host.Split(':')[0], int.Parse(host.Split(':')[1]), config.Timeout);
 
-                TProtocol protocol = new TBinaryProtocol(transport);
+                if (config.IsMult)
+                {
+                    TProtocol protocol = new TBinaryProtocol(transport);
+                    TMultiplexedProtocol mp1 = new TMultiplexedProtocol(protocol, config.ClassName);
 
-                string assemblyName = config.SpaceName;
-                if (!string.IsNullOrEmpty(config.AssemblyName))
-                    assemblyName = config.AssemblyName;
+                    string assemblyName = config.SpaceName;
+                    if (!string.IsNullOrEmpty(config.AssemblyName))
+                        assemblyName = config.AssemblyName;
 
-                return Tuple.Create(transport, Type.GetType($"{config.SpaceName}.{config.ClassName}+Client,{assemblyName}", true)
-               .GetConstructor(new Type[] { typeof(TProtocol) })
-                .Invoke(new object[] { protocol }), host);
+                    return Tuple.Create(transport, Type.GetType($"{config.SpaceName}.{config.ClassName}+Client,{assemblyName}", true)
+                   .GetConstructor(new Type[] { typeof(TProtocol) })
+                    .Invoke(new object[] { mp1 }), host);
+                }
+                else
+                {
+                    TProtocol protocol = new TBinaryProtocol(transport);
+
+                    string assemblyName = config.SpaceName;
+                    if (!string.IsNullOrEmpty(config.AssemblyName))
+                        assemblyName = config.AssemblyName;
+
+                    return Tuple.Create(transport, Type.GetType($"{config.SpaceName}.{config.ClassName}+Client,{assemblyName}", true)
+                   .GetConstructor(new Type[] { typeof(TProtocol) })
+                    .Invoke(new object[] { protocol }), host);
+                }
             }
             catch (Exception ex)
             {

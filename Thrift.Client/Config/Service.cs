@@ -17,6 +17,14 @@ namespace Thrift.Client.Config
             get { return (string)this["name"]; }
         }
 
+        /// 是否多服务
+        /// </summary>
+        [ConfigurationProperty("isMult", IsRequired = false, DefaultValue = false)]
+        public bool IsMult
+        {
+            get { return (bool)this["isMult"]; }
+        }
+
         /// <summary>
         /// 命名空间名称
         /// </summary>

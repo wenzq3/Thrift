@@ -61,8 +61,8 @@ namespace Thrift.Server
                         var handle = TransparentProxy.Create(objType.GetType());
 
                         string assemblyName = service.SpaceName;
-                        if (!string.IsNullOrEmpty(service.AssemblyName))
-                            assemblyName = service.AssemblyName;
+                        //if (!string.IsNullOrEmpty(service.AssemblyName))
+                        //    assemblyName = service.AssemblyName;
 
                         var processor = (Thrift.TProcessor)Type.GetType($"{service.SpaceName}.{service.ClassName}+Processor,{assemblyName}", true)
                        .GetConstructor(new Type[] { Type.GetType($"{service.SpaceName}.{service.ClassName}+Iface,{assemblyName}", true) })
@@ -71,6 +71,93 @@ namespace Thrift.Server
                         TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
 
                         TServer server = new TThreadPoolServer(new BaseProcessor(processor, service), serverTransport,
+                            new TTransportFactory(),
+                            new TTransportFactory(),
+                            new TBinaryProtocol.Factory(),
+                            new TBinaryProtocol.Factory(), service.MinThreadPoolThreads, service.MaxThreadPoolThreads, (x) =>
+                            {
+                                ThriftLog.Info("log:" + x);
+                            });
+
+                        RegeditConfig regiditConfig = null;
+                        if (service.ZookeeperConfig != null && service.ZookeeperConfig.Host != "")
+                            regiditConfig = ConfigCenter.RegeditServer(service); //zookeeper 注册服务
+
+                        ThriftLog.Info($"{service.Name} {service.Port} Starting the TThreadPoolServer...");
+                        _services.Add(server, regiditConfig);
+                        server.Serve();
+                    }
+                    catch (Exception ex)
+                    {
+                        ThriftLog.Error(ex.Message + ex.StackTrace);
+                    }
+                }).Start();
+            }
+        }
+
+        public static void StartMult()
+        {
+            var _configPath = ConfigurationManager.AppSettings["ThriftServerConfigPath"];
+            Config.ThriftConfigSection config = null;
+            if (string.IsNullOrEmpty(_configPath))
+                config = ConfigurationManager.GetSection("thriftServer") as Config.ThriftConfigSection;
+            else
+            {
+                config = ConfigurationManager.OpenMappedExeConfiguration(new ExeConfigurationFileMap
+                {
+                    ExeConfigFilename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _configPath)
+                }, ConfigurationUserLevel.None).GetSection("thriftServer") as Config.ThriftConfigSection;
+            }
+
+            if (config == null || config.Services == null)
+                throw new Exception("thrift服务配置不存在");
+
+            foreach (Service service in config.Services)
+            {
+                new System.Threading.Thread(() =>
+                {
+                    try
+                    {
+                        TMultiplexedProcessor multiplexedProcessor = new TMultiplexedProcessor();
+
+                        Type[] thriftTypes = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.ThriftAssembly + ".dll")).GetTypes();
+                        Type[] thriftImplTypes = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.ThriftImplAssembly + ".dll")).GetTypes();
+                        foreach (var t in thriftTypes)
+                        {
+                            if (!t.Name.Equals("Iface"))
+                            {
+                                continue;
+                            }
+                            string processorFullName = t.FullName.Replace("+Iface", "+Processor");
+                            Type processorType = thriftTypes.FirstOrDefault(c => c.FullName.Equals(processorFullName));
+                            object handle = null;
+                            foreach (Type t2 in thriftImplTypes)
+                            {
+                                if (t2.GetInterfaces().Contains(t))
+                                {
+                                    handle = TransparentProxy.Create(t2);
+                                    break;
+                                }
+                            }
+                            var processor = (Thrift.TProcessor)processorType.GetConstructor(new Type[] { t }).Invoke(new object[] { handle });
+                            multiplexedProcessor.RegisterProcessor(t.ReflectedType.Name, processor);
+                        }
+
+                        if (service.Port > 0)
+                        {
+                            if (!PortHelper.PortIsAvailable(service.Port))
+                                throw new Exception("端口冲突");
+                        }
+                        else
+                        {
+                            service.Port = PortHelper.GetFirstAvailablePort();
+                            if (service.Port <= 0)
+                                throw new Exception("无端口可用");
+                        }
+
+                        TServerTransport serverTransport = new TServerSocket(service.Port, service.ClientTimeout);
+
+                        TServer server = new TThreadPoolServer(new BaseProcessor(multiplexedProcessor, service), serverTransport,
                             new TTransportFactory(),
                             new TTransportFactory(),
                             new TBinaryProtocol.Factory(),

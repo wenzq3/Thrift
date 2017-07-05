@@ -24,10 +24,9 @@ namespace Thrift.Client
         private int _hostCount;
         private int _hostIndex = 0;
 
-        public ThriftClientNoPool(string sectionName, string serviceName)
+        public ThriftClientNoPool(string sectionName, string serviceName, string spaceName,string className)
         {
-            var type = typeof(T);
-            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool, type.Namespace, type.ReflectedType.Name);
+            _config = new ThriftClientConfig(sectionName, serviceName, UpdatePool, spaceName, className);
 
             _host = _config.ServiceConfig.Host.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             _hostCount = _host.Length;

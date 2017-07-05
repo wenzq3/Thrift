@@ -21,10 +21,10 @@ namespace Thrift.IDLHelp
         /// <param name="Namespace">IDL命名空间</param>
         /// <param name="serviceName">IDL服务名</param>
         /// <param name="filePath"></param>
-        public Tuple<string, string, string> Create(Type type, out List<FunInfo> funs, string Namespace , string serviceName)
+        public Tuple<string, string, string> Create(Type type,  string Namespace , string serviceName)
         {
             List<TypeInfo> types = new List<TypeInfo>(); //实体类型集合
-            funs = new List<FunInfo>(); //方法集合
+            List<FunInfo> funs = new List<FunInfo>(); //方法集合
 
             foreach (MethodInfo m in type.GetMethods())
             {

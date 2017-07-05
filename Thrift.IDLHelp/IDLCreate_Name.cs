@@ -20,8 +20,7 @@ namespace Thrift.IDLHelp
         /// <param name="type"></param>
         /// <param name="Namespace">IDL命名空间</param>
         /// <param name="serviceName">IDL服务名</param>
-        /// <param name="filePath"></param>
-        public Tuple<string, string, string> Create(Type type, out List<FunInfo> funs, string Namespace, string serviceName)
+        public Tuple<string, string, string> Create(Type type, string Namespace, string serviceName)
         {
             if (string.IsNullOrEmpty(Namespace))
                 Namespace = type.Namespace;
@@ -30,7 +29,7 @@ namespace Thrift.IDLHelp
                 serviceName = type.Name + "Thrift";
 
             List<TypeInfo> types = new List<TypeInfo>(); //实体类型集合
-            funs = new List<FunInfo>(); //方法集合
+            List<FunInfo> funs = new List<FunInfo>(); //方法集合
 
             foreach (MethodInfo m in type.GetMethods())
             {
@@ -69,7 +68,7 @@ namespace Thrift.IDLHelp
 
             str.AppendLine();
 
-            List<Tuple<string, string>> listType= new List<Tuple<string, string>>();
+            List<Tuple<string, string>> listType = new List<Tuple<string, string>>();
 
             foreach (var itemType in types)
             {
@@ -144,6 +143,148 @@ namespace Thrift.IDLHelp
 
             return Tuple.Create(Namespace, serviceName, str.ToString());
         }
+
+        ///// <summary>
+        ///// 生成IDL模板
+        ///// </summary>
+        ///// <param name="currentNameSpace">IDL命名空间</param>
+        ///// <param name="newNamespace">IDL服务名</param>
+        //public Tuple<string, string> Create(string currentNameSpace, string newNamespace)
+        //{
+        //    List<Type> ifaceTypeList = new List<Type>();
+        //    Type[] types = Assembly.Load(currentNameSpace).GetTypes();
+        //    foreach (var type in types)
+        //    {
+        //        if (type.IsInterface)
+        //        {
+        //            ifaceTypeList.Add(type);
+        //        }
+        //    }
+
+        //    List<TypeInfo> typeList = new List<TypeInfo>(); //实体类型集合
+        //    Dictionary<Type, List<FunInfo>> funsDic = new Dictionary<Type, List<FunInfo>>();
+
+        //    foreach (var ifaceType in ifaceTypeList)
+        //    {
+        //        List<FunInfo> funs = new List<FunInfo>();
+        //        foreach (MethodInfo m in ifaceType.GetMethods())
+        //        {
+        //            FunInfo fun = new FunInfo();
+
+        //            fun.ReturnType = m.ReturnType.ToString();
+        //            fun.FunName = m.Name;
+
+        //            fun.Parameters = new List<Tuple<string, string>>();
+
+        //            string asName = m.ReturnType.Assembly.FullName.Substring(0, m.ReturnType.Assembly.FullName.IndexOf(","));
+
+        //            AddType(typeList, m.ReturnType.FullName, asName, m.ReturnType.BaseType == typeof(System.Enum));
+
+        //            foreach (var p in m.GetParameters())
+        //            {
+        //                fun.Parameters.Add(Tuple.Create(p.ParameterType.ToString(), p.Name));
+
+        //                string asPName = p.ParameterType.Assembly.FullName.Substring(0, p.ParameterType.Assembly.FullName.IndexOf(","));
+
+        //                AddType(typeList, p.ParameterType.FullName, asPName, p.ParameterType.BaseType == typeof(System.Enum));
+        //            }
+        //            funs.Add(fun);
+        //        }
+        //        funsDic.Add(ifaceType, funs);
+        //    }
+
+        //    typeList.Sort((x, y) => { return y.IsEnum.CompareTo(x.IsEnum); });
+
+
+        //    //--------------------------------------------------//
+
+        //    System.Text.StringBuilder str = new StringBuilder();
+
+        //    str.AppendLine($"namespace csharp   {newNamespace}");
+        //    str.AppendLine($"namespace java {newNamespace}");
+        //    str.AppendLine($"namespace cpp  {newNamespace}");
+
+        //    str.AppendLine();
+
+        //    List<Tuple<string, string>> listType = new List<Tuple<string, string>>();
+
+        //    foreach (var itemType in typeList)
+        //    {
+        //        if (isSystemType(itemType.ClassName))
+        //            continue;
+
+        //        Type t = Type.GetType(itemType.ClassName + "," + itemType.AssemblyName, true);
+
+        //        if (listType.Exists(x => x.Item2 == t.Name && x.Item1 != t.FullName))
+        //            throw new Exception("简单类名不允许重复");
+        //        listType.Add(Tuple.Create<string, string>(t.FullName, t.Name));
+
+        //        if (t.BaseType == typeof(System.Enum))
+        //        {
+        //            str.AppendLine($"enum {t.Name}");
+        //            str.AppendLine("{");
+
+        //            foreach (var f in t.GetFields(BindingFlags.Static | BindingFlags.Public))
+        //            {
+        //                int value = Convert.ToInt32(Enum.Parse(t, f.Name));
+        //                str.AppendLine($"{f.Name}={value},");
+        //            }
+
+        //            str.AppendLine("}");
+        //            str.AppendLine();
+        //        }
+        //        else
+        //        {
+        //            str.AppendLine($"struct { t.Name}");
+        //            str.AppendLine("{");
+
+        //            int i = 1;
+        //            foreach (var p in t.GetProperties())
+        //                str.AppendLine($"{i++}: optional {GetThriftType(p.PropertyType.ToString())} {p.Name}");
+
+        //            str.AppendLine("}");
+        //            str.AppendLine();
+        //        }
+        //    }
+        //    foreach (var ifaceType in ifaceTypeList)
+        //    {
+
+        //        str.AppendLine($"service {ifaceType.Name}");
+        //        str.AppendLine("{");
+
+        //        var funs = funsDic[ifaceType];
+        //        foreach (FunInfo f in funs)
+        //        {
+        //            f.CanReturnNull = CanReturnNull(f.ReturnType);
+        //            str.Append(GetThriftType(f.ReturnType) + " ");
+        //            str.Append(f.FunName + "(");
+
+        //            for (int i = 0; i < f.Parameters.Count; i++)
+        //            {
+        //                str.Append($"{i + 1}:");
+        //                str.Append(GetThriftType(f.Parameters[i].Item1) + " ");
+        //                str.Append(f.Parameters[i].Item2);
+        //                if (i < f.Parameters.Count - 1)
+        //                    str.Append(",");
+        //            }
+        //            str.Append(")");
+        //            str.AppendLine();
+        //        }
+
+        //        str.AppendLine("}");
+        //        str.AppendLine();
+        //    }
+
+        //    ConsoleColor currentForeColor = Console.ForegroundColor;
+        //    Console.ForegroundColor = ConsoleColor.Yellow;
+        //    Console.WriteLine("IDL模板：");
+        //    Console.WriteLine();
+        //    Console.WriteLine(str.ToString());
+        //    Console.WriteLine();
+        //    Console.ForegroundColor = currentForeColor;
+
+        //    return Tuple.Create(newNamespace, str.ToString());
+        //}
 
         #region private
 
