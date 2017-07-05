@@ -120,8 +120,8 @@ namespace Thrift.Server
                     {
                         TMultiplexedProcessor multiplexedProcessor = new TMultiplexedProcessor();
 
-                        Type[] thriftTypes = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.ThriftAssembly + ".dll")).GetTypes();
-                        Type[] thriftImplTypes = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.ThriftImplAssembly + ".dll")).GetTypes();
+                        Type[] thriftTypes = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.ThriftAssembly)).GetTypes();
+                        Type[] thriftImplTypes = Assembly.LoadFrom(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, service.ThriftImplAssembly)).GetTypes();
                         foreach (var t in thriftTypes)
                         {
                             if (!t.Name.Equals("Iface"))
