@@ -44,6 +44,24 @@ namespace Thrift.IDLHelp
         /// 生成简单类名
         /// </summary>
         /// <param name="filePath">生成路径</param>
+        /// <param name="assembly">程序集</param>
+        /// <param name="dllName">dll名称</param>
+        /// <returns></returns>
+        public void CreateByAssembly(string filePath, string assembly, string version = "")
+        {
+            Assembly assemblyInstance = Assembly.LoadFrom(assembly);
+            string assemblyName = assemblyInstance.FullName.Split(',')[0];
+            Type[] types = assemblyInstance.GetTypes();
+            var create = new IDLCreate_Name();
+            var idlcode = create.Create(types, assemblyName);
+
+            CreateFile(idlcode, filePath, assemblyName, version);
+        }
+
+        /// <summary>
+        /// 生成简单类名
+        /// </summary>
+        /// <param name="filePath">生成路径</param>
         /// <param name="type">服务接口类型</param>
         /// <param name="nSpace">自定义命名空间</param>
         /// <param name="serviceName">自定义服务名</param>
